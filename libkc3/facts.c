@@ -41,7 +41,7 @@ static int facts_compare_pfact_id_reverse (const void *a,
 static sw facts_open_file_create (s_facts *facts, const s_str *path);
 static sw facts_open_log (s_facts *facts, s_buf *buf);
 
-const s_fact * facts_add_fact (s_facts *facts, const s_fact *fact)
+s_fact * facts_add_fact (s_facts *facts, s_fact *fact)
 {
   s_fact tmp = {0};
   s_fact *f = NULL;
@@ -117,9 +117,8 @@ const s_fact * facts_add_fact (s_facts *facts, const s_fact *fact)
   return NULL;
 }
 
-const s_fact * facts_add_tags (s_facts *facts, const s_tag *subject,
-                               const s_tag *predicate,
-                               const s_tag *object)
+s_fact * facts_add_tags (s_facts *facts, s_tag *subject,
+                         s_tag *predicate, s_tag *object)
 {
   s_fact fact;
   fact_init(&fact, subject, predicate, object);
@@ -182,7 +181,7 @@ void facts_delete (s_facts *facts)
 sw facts_dump (s_facts *facts, s_buf *buf)
 {
   s_facts_cursor cursor;
-  const s_fact *fact;
+  s_fact *fact;
   s_tag predicate;
   s_tag object;
   sw r;
@@ -241,8 +240,8 @@ sw facts_dump_file (s_facts *facts, const char *path)
   return r;
 }
 
-const s_fact ** facts_find_fact (s_facts *facts, const s_fact *fact,
-                                 const s_fact **dest)
+s_fact ** facts_find_fact (s_facts *facts, const s_fact *fact,
+                           s_fact **dest)
 {
   s_fact f;
   s_set_item__fact *item;
@@ -258,24 +257,21 @@ const s_fact ** facts_find_fact (s_facts *facts, const s_fact *fact,
     return NULL;
   *dest = NULL;
   if (f.subject && f.predicate && f.object &&
-      (item = set_get__fact((const s_set__fact *) &facts->facts, &f)))
+      (item = set_get__fact(&facts->facts, &f)))
     *dest = &item->data;
   facts_lock_unlock_r(facts);
   return dest;
 }
 
-const s_fact ** facts_find_fact_by_tags (s_facts *facts,
-                                         const s_tag *subject,
-                                         const s_tag *predicate,
-                                         const s_tag *object,
-                                         const s_fact **dest)
+s_fact ** facts_find_fact_by_tags (s_facts *facts, s_tag *subject,
+                                   s_tag *predicate, s_tag *object,
+                                   s_fact **dest)
 {
   s_fact f = {subject, predicate, object, 0};
   return facts_find_fact(facts, &f, dest);
 }
 
-const s_tag ** facts_find_tag (s_facts *facts, const s_tag *tag,
-                               const s_tag **dest)
+s_tag ** facts_find_tag (s_facts *facts, const s_tag *tag, s_tag **dest)
 {
   s_set_item__tag *item;
   assert(facts);
@@ -703,7 +699,7 @@ sw facts_open_log (s_facts *facts, s_buf *buf)
   return result;
 }
 
-const s_tag * facts_ref_tag (s_facts *facts, const s_tag *tag)
+s_tag * facts_ref_tag (s_facts *facts, const s_tag *tag)
 {
   s_set_item__tag *item;
   assert(facts);
@@ -761,7 +757,7 @@ bool * facts_remove_fact (s_facts *facts, const s_fact *fact,
                           bool *dest)
 {
   s_fact f;
-  const s_fact *found;
+  s_fact *found;
   assert(facts);
   assert(fact);
   facts_lock_w(facts);
@@ -785,9 +781,9 @@ bool * facts_remove_fact (s_facts *facts, const s_fact *fact,
   return dest;
 }
 
-bool * facts_remove_fact_tags (s_facts *facts, const s_tag *subject,
-                               const s_tag *predicate,
-                               const s_tag *object,
+bool * facts_remove_fact_tags (s_facts *facts, s_tag *subject,
+                               s_tag *predicate,
+                               s_tag *object,
                                bool *dest)
 {
   s_fact fact;
@@ -801,7 +797,7 @@ bool * facts_remove_fact_tags (s_facts *facts, const s_tag *subject,
   return facts_remove_fact(facts, &fact, dest);
 }
 
-const s_fact * facts_replace_fact (s_facts *facts, const s_fact *fact)
+s_fact * facts_replace_fact (s_facts *facts, s_fact *fact)
 {
   assert(facts);
   assert(fact);
@@ -809,13 +805,13 @@ const s_fact * facts_replace_fact (s_facts *facts, const s_fact *fact)
                             fact->object);
 }
 
-const s_fact * facts_replace_tags (s_facts *facts, const s_tag *subject,
-                                   const s_tag *predicate,
-                                   const s_tag *object)
+s_fact * facts_replace_tags (s_facts *facts, s_tag *subject,
+                             s_tag *predicate,
+                             s_tag *object)
 {
   bool b;
   s_facts_cursor cursor;
-  const s_fact *fact;
+  s_fact *fact;
   s_list *list = NULL;
   s_facts_transaction transaction;
   s_tag var;

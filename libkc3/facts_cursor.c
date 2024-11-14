@@ -119,10 +119,10 @@ s_facts_cursor * facts_cursor_lock_unlock (s_facts_cursor *cursor)
   return cursor;
 }
 
-const s_fact ** facts_cursor_next (s_facts_cursor *cursor,
-                                   const s_fact **dest)
+s_fact ** facts_cursor_next (s_facts_cursor *cursor,
+                             s_fact **dest)
 {
-  const s_fact *fact;
+  s_fact *fact;
   const s_sym *type;
   assert(cursor);
   if (! facts_cursor_lock(cursor))
