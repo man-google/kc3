@@ -28,7 +28,6 @@
 #include "env.h"
 #include "explicit_bzero.h"
 #include "fn.h"
-#include "frame.h"
 #include "hash.h"
 #include "ident.h"
 #include "integer.h"
