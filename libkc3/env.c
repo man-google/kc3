@@ -249,7 +249,7 @@ void env_clean_globals (s_env *env)
 
 void env_clean_toplevel (s_env *env)
 {
-  frame_delete_all(env->frame);
+  frame_delete(env->frame);
 }
 
 bool env_def (s_env *env, const s_ident *ident, s_tag *value)
@@ -911,7 +911,7 @@ bool env_eval_callable (s_env *env, s_callable *callable,
       return false;
     if (! tmp->data.fn.module)
       tmp->data.fn.module = env->current_defmodule;
-    if (! (tmp->data.fn.frame = frame_new_copy(env->frame)))
+    if (! (tmp->data.fn.frame = frame_new_ref(env->frame)))
       goto ko;
     goto ok;
   case CALLABLE_VOID:

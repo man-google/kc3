@@ -115,7 +115,7 @@ s_frame * frame_clean (s_frame *frame)
   next = frame->next;
   binding_delete_all(frame->bindings);
   if (frame->fn_frame)
-    frame_delete_all(frame->fn_frame);
+    frame_delete(frame->fn_frame);
   return next;
 }
 
@@ -123,8 +123,10 @@ s_frame * frame_delete (s_frame *frame)
 {
   s_frame *next = NULL;
   if (frame) {
-    next = frame_clean(frame);
+    if (! --frame->reference_count)
+      return frame->next;
     free(frame);
+    next = frame_clean(frame);
   }
   return next;
 }
@@ -186,17 +188,18 @@ s_tag * frame_get_w (s_frame *frame, const s_sym *sym)
 }
 
 s_frame * frame_init (s_frame *frame, s_frame *next,
-                      const s_frame *fn_frame)
+                      s_frame *fn_frame)
 {
   s_frame tmp = {0};
   assert(frame);
   tmp.next = next;
-  tmp.fn_frame = frame_new_copy(fn_frame);
+  tmp.fn_frame = frame_new_ref(fn_frame);
+  tmp.reference_count = 1;
   *frame = tmp;
   return frame;
 }
 
-s_frame * frame_new (s_frame *next, const s_frame *fn_frame)
+s_frame * frame_new (s_frame *next, s_frame *fn_frame)
 {
   s_frame *frame;
   frame = alloc(sizeof(s_frame));
@@ -227,8 +230,21 @@ s_frame * frame_new_copy (const s_frame *src)
   }
   return frame;
  clean:
-  frame_delete_all(frame);
+  frame_delete(frame);
   return NULL;
+}
+
+s_frame * frame_new_ref (s_frame *src)
+{
+  if (src) {
+    if (! src->reference_count) {
+      err_puts("frame_new_ref: reference count is zero");
+      assert(! "frame_new_ref: reference count is zero");
+      return NULL;
+    }
+    src->reference_count++;
+  }
+  return src;
 }
 
 s_frame * frame_replace (s_frame *frame, const s_sym *sym,
