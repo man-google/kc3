@@ -130,8 +130,8 @@ s_frame * frame_delete (s_frame *frame)
     }
     if (--frame->reference_count)
       return frame->next;
-    free(frame);
     next = frame_clean(frame);
+    free(frame);
   }
   return next;
 }
