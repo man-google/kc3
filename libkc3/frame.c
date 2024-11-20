@@ -123,7 +123,12 @@ s_frame * frame_delete (s_frame *frame)
 {
   s_frame *next = NULL;
   if (frame) {
-    if (! --frame->reference_count)
+    if (frame->reference_count <= 0) {
+      err_puts("frame_delete: reference count <= 0");
+      assert(! "frame_delete: reference count <= 0");
+      abort();
+    }
+    if (--frame->reference_count)
       return frame->next;
     free(frame);
     next = frame_clean(frame);

@@ -106,6 +106,7 @@ defmodule HTTPd do
 
   def server = fn (host, port) {
     daemonize()
+    event_base = Event.base_new()
     if event_base = Event.base_new() do
       if socket = Socket.listen(host, port) do
         puts("KC3 HTTPd: listening on #{host}:#{port}")
@@ -127,11 +128,9 @@ defmodule HTTPd do
     () {
       host = getenv("KC3_HTTPD_HOST")
       port = getenv("KC3_HTTPD_PORT")
-      event_base = Event.base_new()
       server(host, port)
     }
     (host, port) {
-      event_base = Event.base_new()
       server(host, port)
     }
   }
