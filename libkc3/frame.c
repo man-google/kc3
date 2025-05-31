@@ -115,7 +115,7 @@ s_frame * frame_clean (s_frame *frame)
   next = frame->next;
   binding_delete_all(frame->bindings);
   if (frame->fn_frame)
-    frame_delete_all(frame->fn_frame);
+    frame_delete(frame->fn_frame);
   return next;
 }
 
@@ -123,7 +123,15 @@ s_frame * frame_delete (s_frame *frame)
 {
   s_frame *next = NULL;
   if (frame) {
-    next = frame_clean(frame);
+    if (frame->ref_count <= 0) {
+      err_puts("frame_delete: invalid reference count");
+      assert(! "frame_delete: invalid reference count");
+      abort();
+    }
+    next = frame->next;
+    if (--frame->ref_count)
+      return next;
+    frame_clean(frame);
     free(frame);
   }
   return next;
@@ -186,17 +194,18 @@ s_tag * frame_get_w (s_frame *frame, const s_sym *sym)
 }
 
 s_frame * frame_init (s_frame *frame, s_frame *next,
-                      const s_frame *fn_frame)
+                      s_frame *fn_frame)
 {
   s_frame tmp = {0};
   assert(frame);
   tmp.next = next;
-  tmp.fn_frame = frame_new_copy(fn_frame);
+  tmp.fn_frame = frame_new_ref(fn_frame);
+  tmp.ref_count = 1;
   *frame = tmp;
   return frame;
 }
 
-s_frame * frame_new (s_frame *next, const s_frame *fn_frame)
+s_frame * frame_new (s_frame *next, s_frame *fn_frame)
 {
   s_frame *frame;
   frame = alloc(sizeof(s_frame));
@@ -209,11 +218,11 @@ s_frame * frame_new (s_frame *next, const s_frame *fn_frame)
   return frame;
 }
 
-s_frame * frame_new_copy (const s_frame *src)
+s_frame * frame_new_copy (s_frame *src)
 {
   s_frame **f;
   s_frame  *frame;
-  const s_frame *s;
+  s_frame *s;
   frame = NULL;
   f = &frame;
   s = src;
@@ -229,6 +238,19 @@ s_frame * frame_new_copy (const s_frame *src)
  clean:
   frame_delete_all(frame);
   return NULL;
+}
+
+s_frame * frame_new_ref (s_frame *src)
+{
+  if (src) {
+    if (src->ref_count <= 0) {
+      err_puts("frame_new_ref: invalid reference count");
+      assert(! "frame_new_ref: invalid reference count");
+      abort();
+    }
+    src->ref_count++;
+  }
+  return src;
 }
 
 s_frame * frame_replace (s_frame *frame, const s_sym *sym,

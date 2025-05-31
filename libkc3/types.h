@@ -321,6 +321,7 @@ struct frame {
   s_binding *bindings;
   s_frame *next;
   s_frame *fn_frame;
+  sw ref_count;
 };
 
 struct fact_list {
