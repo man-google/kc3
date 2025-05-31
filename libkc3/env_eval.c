@@ -267,7 +267,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   s_block block = {0};
   s_fn_clause *clause;
   s_frame *env_frame;
-  s_frame *frame = NULL;
+  s_frame * volatile frame = NULL;
   const s_sym *module;
   s_list *search_modules;
   bool silence_errors;
