@@ -267,7 +267,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   s_block block = {0};
   s_fn_clause *clause;
   s_frame *env_frame;
-  s_frame frame = {0};
+  s_frame *frame = NULL;
   const s_sym *module;
   s_list *search_modules;
   bool silence_errors;
@@ -296,14 +296,12 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       env_unwind_protect_push(env, &unwind_protect);
       if (setjmp(unwind_protect.buf)) {
         env_unwind_protect_pop(env, &unwind_protect);
-        env->silence_errors = silence_errors;
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         longjmp(*unwind_protect.jmp, 1);
       }
       if (! env_eval_call_arguments(env, arguments, &args)) {
         env_unwind_protect_pop(env, &unwind_protect);
-        env->silence_errors = silence_errors;
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         return false;
@@ -312,19 +310,20 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       args_final = args;
     }
     while (clause) {
-      if (! frame_init(&frame, env->frame, fn->frame)) {
+      if (! (frame = frame_new(env->frame, fn->frame))) {
         env->silence_errors = silence_errors;
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         return false;
       }
-      env->frame = &frame;
+      env->frame = frame;
       env->silence_errors = true;
       env_unwind_protect_push(env, &unwind_protect);
       if (setjmp(unwind_protect.buf)) {
         env_unwind_protect_pop(env, &unwind_protect);
         env->silence_errors = silence_errors;
         env->frame = env_frame;
+        frame_delete(frame);
         list_delete_all(args);
         longjmp(*unwind_protect.jmp, 1);
       }
@@ -337,6 +336,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       env_unwind_protect_pop(env, &unwind_protect);
       env->silence_errors = silence_errors;
       env->frame = env_frame;
+      frame_delete(frame);
       clause = clause->next_clause;
     }
     if (! clause) {
@@ -362,8 +362,8 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     }
   }
   else {
-    frame_init(&frame, env->frame, fn->frame);
-    env->frame = &frame;
+    frame = frame_new(env->frame, fn->frame);
+    env->frame = frame;
   }
   if (! (trace = list_new(env->stacktrace))) {
     list_delete_all(args);
@@ -371,7 +371,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     env->frame = env_frame;
-    frame_clean(&frame);
+    frame_delete(frame);
     return false;
   }
   tag_init_list(&trace->tag, list_new_ident
@@ -385,7 +385,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     env->frame = env_frame;
-    frame_clean(&frame);
+    frame_delete(frame);
     return false;
   }
   if (setjmp(block.buf)) {
@@ -402,6 +402,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     env->frame = env_frame;
+    frame_delete(frame);
     longjmp(*unwind_protect.jmp, 1);
   }
   if (! env_eval_do_block(env, &clause->algo, &tag)) {
@@ -414,7 +415,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     env->frame = env_frame;
-    frame_clean(&frame);
+    frame_delete(frame);
     return false;
   }
   env_unwind_protect_pop(env, &unwind_protect);
@@ -425,6 +426,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   list_delete_all(env->search_modules);
   env->search_modules = search_modules;
   env->frame = env_frame;
+  frame_delete(frame);
  ok:
   block_clean(&block);
   if (fn->macro) {
