@@ -391,9 +391,10 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   }
   env_unwind_protect_push(env, &unwind_protect);
   if (setjmp(unwind_protect.buf)) {
-    fprintf(stderr, "unwind_protect 1: %p %p\n",
-            (void *) &unwind_protect.buf,
-            (void *) unwind_protect.jmp);
+    if (false)
+      fprintf(stderr, "unwind_protect 1: %p %p\n",
+              (void *) &unwind_protect.buf,
+              (void *) unwind_protect.jmp);
     env_unwind_protect_pop(env, &unwind_protect);
     block_clean(&block);
     longjmp(*unwind_protect.jmp, 1);
@@ -407,9 +408,10 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   {
     env_unwind_protect_push(env, &unwind_protect2);
     if (setjmp(unwind_protect2.buf)) {
-      fprintf(stderr, "unwind_protect 2: %p %p\n",
-              (void *) &unwind_protect2.buf,
-              (void *) unwind_protect2.jmp);
+      if (false)
+        fprintf(stderr, "unwind_protect 2: %p %p\n",
+                (void *) &unwind_protect2.buf,
+                (void *) unwind_protect2.jmp);
       env_unwind_protect_pop(env, &unwind_protect2);
       assert(env->stacktrace == trace);
       env->stacktrace = list_delete(env->stacktrace);
