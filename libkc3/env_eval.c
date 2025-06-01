@@ -275,6 +275,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   s_list *tmp = NULL;
   s_list *trace;
   s_unwind_protect unwind_protect;
+  s_unwind_protect unwind_protect2;
   assert(env);
   assert(fn);
   assert(dest);
@@ -388,6 +389,12 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     frame_delete(frame);
     return false;
   }
+  env_unwind_protect_push(env, &unwind_protect2);
+  if (setjmp(unwind_protect2.buf)) {
+    env_unwind_protect_pop(env, &unwind_protect2);
+    block_clean(&block);
+    longjmp(*unwind_protect2.jmp, 1);
+  }
   if (setjmp(block.buf)) {
     tag_init_copy(&tag, &block.tag);
     goto ok;
@@ -407,6 +414,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   }
   if (! env_eval_do_block(env, &clause->algo, &tag)) {
     env_unwind_protect_pop(env, &unwind_protect);
+    env_unwind_protect_pop(env, &unwind_protect2);
     block_clean(&block);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
@@ -428,6 +436,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   env->frame = env_frame;
   frame_delete(frame);
  ok:
+  env_unwind_protect_pop(env, &unwind_protect2);
   block_clean(&block);
   if (fn->macro) {
     env_unwind_protect_push(env, &unwind_protect);
