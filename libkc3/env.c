@@ -2277,7 +2277,7 @@ void env_unwind_protect_pop (s_env *env, s_unwind_protect *up)
 {
   assert(env);
   assert(up);
-  if (true) {
+  if (false) {
     err_write_1("env_unwind_protect_pop: ");
     err_inspect_pointer(&up);
     err_write_1("\n");
@@ -2294,7 +2294,7 @@ void env_unwind_protect_pop (s_env *env, s_unwind_protect *up)
 void env_unwind_protect_push (s_env *env,
                               s_unwind_protect *unwind_protect)
 {
-  if (true) {
+  if (false) {
     err_write_1("env_unwind_protect_push: ");
     err_inspect_pointer(&unwind_protect);
     err_write_1("\n");
