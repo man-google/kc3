@@ -2288,7 +2288,7 @@ void env_unwind_protect_pop (s_env *env, s_unwind_protect *up)
     assert(! "env_unwind_protect_pop: mismatch");
     abort();
   }
-  env->unwind_protect = env->unwind_protect->next;
+  env->unwind_protect = up->next;
 }
 
 void env_unwind_protect_push (s_env *env,
@@ -2300,6 +2300,13 @@ void env_unwind_protect_push (s_env *env,
     err_write_1("\n");
     err_stacktrace();
   }
+  if (unwind_protect == env->unwind_protect) {
+    err_puts("env_unwind_protect_push: double push");
+    err_stacktrace();
+    assert(! "env_unwind_protect_push: double push");
+    abort();
+  }    
+  unwind_protect->jmp = NULL;
   unwind_protect->next = env->unwind_protect;
   env->unwind_protect = unwind_protect;
 }

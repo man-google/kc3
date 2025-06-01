@@ -389,19 +389,21 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     frame_delete(frame);
     return false;
   }
-  env_unwind_protect_push(env, &unwind_protect2);
-  if (setjmp(unwind_protect2.buf)) {
-    env_unwind_protect_pop(env, &unwind_protect2);
-    block_clean(&block);
-    longjmp(*unwind_protect2.jmp, 1);
-  }
-  if (setjmp(block.buf)) {
-    tag_init_copy(&tag, &block.tag);
-    goto ok;
-  }
   env_unwind_protect_push(env, &unwind_protect);
   if (setjmp(unwind_protect.buf)) {
     env_unwind_protect_pop(env, &unwind_protect);
+    block_clean(&block);
+    longjmp(*unwind_protect.jmp, 1);
+  }
+  if (setjmp(block.buf)) {
+    tag_init_copy(&tag, &block.tag);
+    env_unwind_protect_pop(env, &unwind_protect);
+    block_clean(&block);
+    goto ok;
+  }
+  env_unwind_protect_push(env, &unwind_protect2);
+  if (setjmp(unwind_protect2.buf)) {
+    env_unwind_protect_pop(env, &unwind_protect2);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
     list_delete_all(args);
@@ -410,11 +412,11 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     env->search_modules = search_modules;
     env->frame = env_frame;
     frame_delete(frame);
-    longjmp(*unwind_protect.jmp, 1);
+    longjmp(*unwind_protect2.jmp, 1);
   }
   if (! env_eval_do_block(env, &clause->algo, &tag)) {
-    env_unwind_protect_pop(env, &unwind_protect);
     env_unwind_protect_pop(env, &unwind_protect2);
+    env_unwind_protect_pop(env, &unwind_protect);
     block_clean(&block);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
@@ -426,7 +428,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     frame_delete(frame);
     return false;
   }
+  env_unwind_protect_pop(env, &unwind_protect2);
   env_unwind_protect_pop(env, &unwind_protect);
+  block_clean(&block);
   assert(env->stacktrace == trace);
   env->stacktrace = list_delete(env->stacktrace);
   list_delete_all(args);
@@ -436,8 +440,6 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   env->frame = env_frame;
   frame_delete(frame);
  ok:
-  env_unwind_protect_pop(env, &unwind_protect2);
-  block_clean(&block);
   if (fn->macro) {
     env_unwind_protect_push(env, &unwind_protect);
     if (setjmp(unwind_protect.buf)) {
