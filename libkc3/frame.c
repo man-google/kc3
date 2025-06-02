@@ -115,8 +115,7 @@ s_frame * frame_clean (s_frame *frame)
   assert(frame);
   next = frame->next;
   binding_delete_all(frame->bindings);
-  while (frame->fn_frame)
-    frame->fn_frame = frame_delete(frame->fn_frame);
+  frame_delete_all(frame->fn_frame);
 #if HAVE_PTHREAD
   mutex_clean(&frame->mutex);
 #endif
@@ -154,7 +153,7 @@ s_frame * frame_delete (s_frame *frame)
 void frame_delete_all (s_frame *frame)
 {
   s_frame *next = NULL;
-  if (frame) {
+  while (frame) {
 #if HAVE_PTHREAD
     mutex_lock(&frame->mutex);
 #endif
@@ -174,8 +173,8 @@ void frame_delete_all (s_frame *frame)
     mutex_unlock(&frame->mutex);
 #endif
     frame_clean(frame);
-    frame_delete_all(next);
     free(frame);
+    frame = next;
   }
 }
 
