@@ -2240,6 +2240,7 @@ void env_toplevel_clean (s_env *env)
 
 s_env * env_toplevel_init (s_env *env)
 {
+  assert(! env->frame);
   env->frame = frame_new(NULL, NULL);
   return env;
 }
