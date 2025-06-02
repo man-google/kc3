@@ -42,7 +42,8 @@ void fn_clean (s_fn *fn)
 {
   assert(fn);
   fn_clause_delete_all(fn->clauses);
-  frame_delete(fn->frame);
+  while (fn->frame)
+    fn->frame = frame_delete(fn->frame);
 }
 
 void fn_delete (s_fn *fn)
