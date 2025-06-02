@@ -1011,7 +1011,6 @@ bool env_global_set (s_env *env)
 void env_globals_clean (s_env *env)
 {
   frame_delete_all(env->global_frame);
-  frame_delete_all(env->read_time_frame);
 }
 
 s_env * env_globals_init (s_env *env)

@@ -115,7 +115,7 @@ s_frame * frame_clean (s_frame *frame)
   assert(frame);
   next = frame->next;
   binding_delete_all(frame->bindings);
-  frame_delete_all(frame->fn_frame);
+  frame_delete(frame->fn_frame);
 #if HAVE_PTHREAD
   mutex_clean(&frame->mutex);
 #endif
@@ -158,8 +158,8 @@ void frame_delete_all (s_frame *frame)
     mutex_lock(&frame->mutex);
 #endif
     if (frame->ref_count <= 0) {
-      err_puts("frame_delete: invalid reference count");
-      assert(! "frame_delete: invalid reference count");
+      err_puts("frame_delete_all: invalid reference count");
+      assert(! "frame_delete_all: invalid reference count");
       abort();
     }
     next = frame->next;
@@ -231,7 +231,7 @@ s_frame * frame_init (s_frame *frame, s_frame *next,
 {
   s_frame tmp = {0};
   assert(frame);
-  tmp.next = frame_new_ref(next);
+  tmp.next = next;
   tmp.fn_frame = frame_new_ref(fn_frame);
 #if HAVE_PTHREAD
   mutex_init(&tmp.mutex);
