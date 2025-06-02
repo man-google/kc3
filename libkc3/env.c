@@ -306,7 +306,8 @@ void env_clean_globals (s_env *env)
 
 void env_clean_toplevel (s_env *env)
 {
-  frame_delete(env->frame);
+  while (env->frame)
+    env->frame = frame_delete(env->frame);
 }
 
 bool env_def (s_env *env, const s_ident *ident, s_tag *value)
