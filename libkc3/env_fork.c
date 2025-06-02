@@ -24,8 +24,8 @@ void env_fork_clean (s_env *env)
   assert(env);
   //env->stacktrace
   //env->error_handler
-  frame_delete_all(env->frame);
-  frame_delete_all(env->read_time_frame);
+  frame_delete(env->frame);
+  frame_delete(env->read_time_frame);
   ops_delete(env->ops);
   //tmp.unwind_protect = NULL;
 }

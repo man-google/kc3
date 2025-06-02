@@ -116,6 +116,8 @@ s_frame * frame_clean (s_frame *frame)
   binding_delete_all(frame->bindings);
   if (frame->fn_frame)
     frame_delete(frame->fn_frame);
+  if (next)
+    frame_delete(next);
   return next;
 }
 
@@ -135,14 +137,6 @@ s_frame * frame_delete (s_frame *frame)
     free(frame);
   }
   return next;
-}
-
-void frame_delete_all (s_frame *frame)
-{
-  s_frame *f;
-  f = frame;
-  while (f)
-    f = frame_delete(f);
 }
 
 s_tag * frame_get (s_frame *frame, const s_sym *sym)
@@ -198,7 +192,7 @@ s_frame * frame_init (s_frame *frame, s_frame *next,
 {
   s_frame tmp = {0};
   assert(frame);
-  tmp.next = next;
+  tmp.next = frame_new_ref(next);
   tmp.fn_frame = frame_new_ref(fn_frame);
   tmp.ref_count = 1;
   *frame = tmp;
@@ -236,7 +230,7 @@ s_frame * frame_new_copy (s_frame *src)
   }
   return frame;
  clean:
-  frame_delete_all(frame);
+  frame_delete(frame);
   return NULL;
 }
 
