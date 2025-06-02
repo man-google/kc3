@@ -901,10 +901,10 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   s_fact *fact = NULL;
   s_fact_w fact_w = {0};
   s_tag tmp = {0};
+  if (! facts_with_tags(facts, &cursor, subject, predicate, object))
+    return NULL;
   if (! (arguments = list_new_pstruct_with_data(&g_sym_FactW, &fact_w,
                                                 false, NULL)))
-    return NULL;
-  if (! facts_with_tags(facts, &cursor, subject, predicate, object))
     return NULL;
   while (1) {
     if (! facts_cursor_next(&cursor, &fact))
@@ -912,7 +912,7 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
     if (! fact) {
       goto ok;
     }
-    tag_clean(&tmp);
+    tag_void(&tmp);
     if (! fact_w_init_fact(&fact_w, fact))
       goto clean;
     if (! env_eval_call_callable_args(env, callback, arguments, &tmp)) {
