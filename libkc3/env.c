@@ -300,8 +300,10 @@ void env_clean (s_env *env)
 
 void env_clean_globals (s_env *env)
 {
-  frame_delete(env->global_frame);
-  frame_delete(env->read_time_frame);
+  while (env->global_frame)
+    env->global_frame = frame_delete(env->global_frame);
+  while (env->read_time_frame)
+    env->read_time_frame = frame_delete(env->read_time_frame);
 }
 
 void env_clean_toplevel (s_env *env)
