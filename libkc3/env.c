@@ -1010,10 +1010,8 @@ bool env_global_set (s_env *env)
 
 void env_globals_clean (s_env *env)
 {
-  while (env->global_frame)
-    env->global_frame = frame_delete(env->global_frame);
-  while (env->read_time_frame)
-    env->read_time_frame = frame_delete(env->read_time_frame);
+  frame_delete_all(env->global_frame);
+  frame_delete_all(env->read_time_frame);
 }
 
 s_env * env_globals_init (s_env *env)
@@ -2237,8 +2235,7 @@ bool env_tag_ident_is_bound (s_env *env, const s_tag *tag)
 
 void env_toplevel_clean (s_env *env)
 {
-  while (env->frame)
-    env->frame = frame_delete(env->frame);
+  frame_delete_all(env->frame);
 }
 
 s_env * env_toplevel_init (s_env *env)

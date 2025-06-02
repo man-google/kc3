@@ -151,6 +151,34 @@ s_frame * frame_delete (s_frame *frame)
   return next;
 }
 
+void frame_delete_all (s_frame *frame)
+{
+  s_frame *next = NULL;
+  if (frame) {
+#if HAVE_PTHREAD
+    mutex_lock(&frame->mutex);
+#endif
+    if (frame->ref_count <= 0) {
+      err_puts("frame_delete: invalid reference count");
+      assert(! "frame_delete: invalid reference count");
+      abort();
+    }
+    next = frame->next;
+    if (--frame->ref_count) {
+#if HAVE_PTHREAD
+      mutex_unlock(&frame->mutex);
+#endif
+      return;
+    }
+#if HAVE_PTHREAD
+    mutex_unlock(&frame->mutex);
+#endif
+    frame_clean(frame);
+    frame_delete_all(next);
+    free(frame);
+  }
+}
+
 s_tag * frame_get (s_frame *frame, const s_sym *sym)
 {
   s_frame *f;
