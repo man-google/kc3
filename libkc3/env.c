@@ -904,8 +904,10 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   if (! facts_with_tags(facts, &cursor, subject, predicate, object))
     return NULL;
   if (! (arguments = list_new_pstruct_with_data(&g_sym_FactW, &fact_w,
-                                                false, NULL)))
+                                                false, NULL))){
+    facts_cursor_clean(&cursor);
     return NULL;
+  }
   while (1) {
     if (! facts_cursor_next(&cursor, &fact))
       goto clean;
@@ -921,8 +923,8 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
     }
     fact_w_clean(&fact_w);
   }
-  facts_cursor_clean(&cursor);
  ok:
+  facts_cursor_clean(&cursor);
   list_delete_all(arguments);
   *dest = tmp;
   return dest;
