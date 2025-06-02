@@ -17,6 +17,7 @@
 #include "frame.h"
 #include "ident.h"
 #include "list.h"
+#include "mutex.h"
 #include "sym.h"
 #include "tag.h"
 
@@ -118,6 +119,9 @@ s_frame * frame_clean (s_frame *frame)
     frame_delete(frame->fn_frame);
   if (next)
     frame_delete(next);
+#if HAVE_PTHREAD
+  mutex_clean(&frame->mutex);
+#endif
   return next;
 }
 
@@ -125,14 +129,24 @@ s_frame * frame_delete (s_frame *frame)
 {
   s_frame *next = NULL;
   if (frame) {
+#if HAVE_PTHREAD
+    mutex_lock(&frame->mutex);
+#endif
     if (frame->ref_count <= 0) {
       err_puts("frame_delete: invalid reference count");
       assert(! "frame_delete: invalid reference count");
       abort();
     }
     next = frame->next;
-    if (--frame->ref_count)
+    if (--frame->ref_count) {
+#if HAVE_PTHREAD
+      mutex_unlock(&frame->mutex);
+#endif
       return next;
+    }
+#if HAVE_PTHREAD
+    mutex_unlock(&frame->mutex);
+#endif
     frame_clean(frame);
     free(frame);
   }
@@ -194,6 +208,9 @@ s_frame * frame_init (s_frame *frame, s_frame *next,
   assert(frame);
   tmp.next = frame_new_ref(next);
   tmp.fn_frame = frame_new_ref(fn_frame);
+#if HAVE_PTHREAD
+  mutex_init(&tmp.mutex);
+#endif
   tmp.ref_count = 1;
   *frame = tmp;
   return frame;
@@ -234,17 +251,23 @@ s_frame * frame_new_copy (s_frame *src)
   return NULL;
 }
 
-s_frame * frame_new_ref (s_frame *src)
+s_frame * frame_new_ref (s_frame *frame)
 {
-  if (src) {
-    if (src->ref_count <= 0) {
+  if (frame) {
+#if HAVE_PTHREAD
+    mutex_lock(&frame->mutex);
+#endif
+    if (frame->ref_count <= 0) {
       err_puts("frame_new_ref: invalid reference count");
       assert(! "frame_new_ref: invalid reference count");
       abort();
     }
-    src->ref_count++;
+    frame->ref_count++;
+#if HAVE_PTHREAD
+    mutex_unlock(&frame->mutex);
+#endif
   }
-  return src;
+  return frame;
 }
 
 s_frame * frame_replace (s_frame *frame, const s_sym *sym,
