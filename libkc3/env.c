@@ -909,11 +909,11 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   s_fact_w fact_w = {0};
   s_tag tmp = {0};
   s_unwind_protect unwind_protect;
-  if (! facts_with_tags(facts, &cursor, subject, predicate, object))
-    return NULL;
   if (! (arguments = list_new_pstruct_with_data(&g_sym_FactW, &fact_w,
-                                                false, NULL))){
-    facts_cursor_clean(&cursor);
+                                                false, NULL)))
+    return NULL;
+  if (! facts_with_tags(facts, &cursor, subject, predicate, object)) {
+    list_delete_all(arguments);
     return NULL;
   }
   while (1) {
