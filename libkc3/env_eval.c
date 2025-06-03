@@ -566,6 +566,7 @@ bool env_eval_call_resolve (s_env *env, s_call *call)
 bool env_eval_callable (s_env *env, s_callable *callable,
                         s_tag *dest)
 {
+  s_callable c = {0};
   s_callable *tmp = NULL;
   assert(env);
   assert(callable);
@@ -579,10 +580,9 @@ bool env_eval_callable (s_env *env, s_callable *callable,
       return false;
     goto ok;
   case CALLABLE_FN:
-    if (env_global()->pass_by_copy)
-      tmp = callable_new_copy(callable);
-    else
-      tmp = callable_new_ref(callable);
+    c = *callable;
+    c.data.fn.frame = env->frame;
+    tmp = callable_new_copy(&c);
     if (! tmp->data.fn.module)
       tmp->data.fn.module = env->current_defmodule;
     goto ok;
