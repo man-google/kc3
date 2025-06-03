@@ -910,8 +910,10 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
     return NULL;
   }
   while (1) {
-    if (! facts_cursor_next(&cursor, &fact))
+    if (! facts_cursor_next(&cursor, &fact)) {
+      tag_clean(&tmp);
       goto clean;
+    }
     if (! fact) {
       goto ok;
     }
@@ -940,7 +942,6 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   return dest;
  clean:
   facts_cursor_clean(&cursor);
-  tag_clean(&tmp);
   list_delete_all(arguments);
   return NULL;
 }
