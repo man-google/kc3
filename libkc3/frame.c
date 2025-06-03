@@ -263,7 +263,8 @@ s_frame * frame_new_copy (s_frame *src)
   f = &frame;
   s = src;
   while (s) {
-    *f = frame_new(NULL, s->fn_frame);
+    *f = frame_new(NULL, frame_new_copy(s->fn_frame));
+    frame_delete((*f)->fn_frame);
     if (s->bindings &&
         ! ((*f)->bindings = binding_new_copy(s->bindings)))
       goto clean;
