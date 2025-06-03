@@ -273,12 +273,15 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   s_tag tag;
   s_list *tmp = NULL;
   s_list *trace;
-  s_unwind_protect unwind_args;
-  s_unwind_protect unwind_clause;
-  s_unwind_protect unwind_block;
-  s_block          block = {0};
-  s_unwind_protect unwind_do;
-  s_unwind_protect unwind_macro;
+  struct { /* XXX needed to sort unwind protect jumps
+              XXX only works if stack grows down */
+    s_unwind_protect unwind_macro;
+    s_unwind_protect unwind_do;
+    s_block          block;
+    s_unwind_protect unwind_block;
+    s_unwind_protect unwind_clause;
+    s_unwind_protect unwind_args;
+  } jump;
   assert(env);
   assert(fn);
   assert(dest);
@@ -297,20 +300,20 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     if (fn->macro || fn->special_operator)
       args_final = arguments;
     else {
-      env_unwind_protect_push(env, &unwind_args);
-      if (setjmp(unwind_args.buf)) {
-        env_unwind_protect_pop(env, &unwind_args);
+      env_unwind_protect_push(env, &jump.unwind_args);
+      if (setjmp(jump.unwind_args.buf)) {
+        env_unwind_protect_pop(env, &jump.unwind_args);
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;
-        longjmp(*unwind_args.jmp, 1);
+        longjmp(*jump.unwind_args.jmp, 1);
       }
       if (! env_eval_call_arguments(env, arguments, &args)) {
-        env_unwind_protect_pop(env, &unwind_args);
+        env_unwind_protect_pop(env, &jump.unwind_args);
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         return false;
       }
-      env_unwind_protect_pop(env, &unwind_args);
+      env_unwind_protect_pop(env, &jump.unwind_args);
       args_final = args;
     }
     while (clause) {
@@ -322,23 +325,23 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       }
       env->frame = frame;
       env->silence_errors = true;
-      env_unwind_protect_push(env, &unwind_clause);
-      if (setjmp(unwind_clause.buf)) {
-        env_unwind_protect_pop(env, &unwind_clause);
+      env_unwind_protect_push(env, &jump.unwind_clause);
+      if (setjmp(jump.unwind_clause.buf)) {
+        env_unwind_protect_pop(env, &jump.unwind_clause);
         env->silence_errors = silence_errors;
         assert(env->frame == frame);
         env->frame = env_frame;
         frame_delete(frame);
         list_delete_all(args);
-        longjmp(*unwind_clause.jmp, 1);
+        longjmp(*jump.unwind_clause.jmp, 1);
       }
       if (env_eval_equal_list(env, fn->macro || fn->special_operator,
                               clause->pattern, args_final, &tmp)) {
-        env_unwind_protect_pop(env, &unwind_clause);
+        env_unwind_protect_pop(env, &jump.unwind_clause);
         env->silence_errors = silence_errors;
         break;
       }
-      env_unwind_protect_pop(env, &unwind_clause);
+      env_unwind_protect_pop(env, &jump.unwind_clause);
       env->silence_errors = silence_errors;
       assert(env->frame == frame);
       env->frame = env_frame;
@@ -385,7 +388,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
                 (&fn->ident, list_new_copy
                  (args)));
   env->stacktrace = trace;
-  if (! block_init(&block, fn->ident.sym)) {
+  if (! block_init(&jump.block, fn->ident.sym)) {
     env->stacktrace = list_delete(env->stacktrace);
     list_delete_all(args);
     list_delete_all(tmp);
@@ -396,29 +399,32 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     frame_delete(frame);
     return false;
   }
-  env_unwind_protect_push(env, &unwind_block);
-  if (setjmp(unwind_block.buf)) {
+  env_unwind_protect_push(env, &jump.unwind_block);
+  if (setjmp(jump.unwind_block.buf)) {
     if (false)
-      fprintf(stderr, "unwind_block: %p %p\n",
-              (void *) &unwind_block.buf,
-              (void *) unwind_block.jmp);
-    env_unwind_protect_pop(env, &unwind_block);
-    block_clean(&block);
-    longjmp(*unwind_block.jmp, 1);
+      fprintf(stderr, "jump.unwind_block: %p %p\n",
+              (void *) &jump.unwind_block.buf,
+              (void *) jump.unwind_block.jmp);
+    env_unwind_protect_pop(env, &jump.unwind_block);
+    block_clean(&jump.block);
+    longjmp(*jump.unwind_block.jmp, 1);
   }
-  if (setjmp(block.buf)) {
-    tag_init_copy(&tag, &block.tag);
-    env_unwind_protect_pop(env, &unwind_block);
-    block_clean(&block);
+  if (setjmp(jump.block.buf)) {
+    if (false)
+      fprintf(stderr, "jump.block: %p\n",
+              (void *) &jump.block.buf);
+    tag_init_copy(&tag, &jump.block.tag);
+    env_unwind_protect_pop(env, &jump.unwind_block);
+    block_clean(&jump.block);
     goto ok;
   }
-  env_unwind_protect_push(env, &unwind_do);
-  if (setjmp(unwind_do.buf)) {
+  env_unwind_protect_push(env, &jump.unwind_do);
+  if (setjmp(jump.unwind_do.buf)) {
     if (false)
-      fprintf(stderr, "unwind_do: %p %p\n",
-              (void *) &unwind_do.buf,
-              (void *) unwind_do.jmp);
-    env_unwind_protect_pop(env, &unwind_do);
+      fprintf(stderr, "jump.unwind_do: %p %p\n",
+              (void *) &jump.unwind_do.buf,
+              (void *) jump.unwind_do.jmp);
+    env_unwind_protect_pop(env, &jump.unwind_do);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
     list_delete_all(args);
@@ -427,12 +433,12 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     env->search_modules = search_modules;
     env->frame = env_frame;
     frame_delete(frame);
-    longjmp(*unwind_do.jmp, 1);
+    longjmp(*jump.unwind_do.jmp, 1);
   }
   if (! env_eval_do_block(env, &clause->algo, &tag)) {
-    env_unwind_protect_pop(env, &unwind_do);
-    env_unwind_protect_pop(env, &unwind_block);
-    block_clean(&block);
+    env_unwind_protect_pop(env, &jump.unwind_do);
+    env_unwind_protect_pop(env, &jump.unwind_block);
+    block_clean(&jump.block);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
     list_delete_all(args);
@@ -443,9 +449,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     frame_delete(frame);
     return false;
   }
-  env_unwind_protect_pop(env, &unwind_do);
-  env_unwind_protect_pop(env, &unwind_block);
-  block_clean(&block);
+  env_unwind_protect_pop(env, &jump.unwind_do);
+  env_unwind_protect_pop(env, &jump.unwind_block);
+  block_clean(&jump.block);
   assert(env->stacktrace == trace);
   env->stacktrace = list_delete(env->stacktrace);
   list_delete_all(args);
@@ -456,18 +462,18 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   frame_delete(frame);
  ok:
   if (fn->macro) {
-    env_unwind_protect_push(env, &unwind_macro);
-    if (setjmp(unwind_macro.buf)) {
-      env_unwind_protect_pop(env, &unwind_macro);
+    env_unwind_protect_push(env, &jump.unwind_macro);
+    if (setjmp(jump.unwind_macro.buf)) {
+      env_unwind_protect_pop(env, &jump.unwind_macro);
       tag_clean(&tag);
-      longjmp(*unwind_macro.jmp, 1);
+      longjmp(*jump.unwind_macro.jmp, 1);
     }
     if (! env_eval_tag(env, &tag, dest)) {
-      env_unwind_protect_pop(env, &unwind_macro);
+      env_unwind_protect_pop(env, &jump.unwind_macro);
       tag_clean(&tag);
       return false;
     }
-    env_unwind_protect_pop(env, &unwind_macro);
+    env_unwind_protect_pop(env, &jump.unwind_macro);
     tag_clean(&tag);
   }
   else

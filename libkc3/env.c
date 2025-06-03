@@ -894,7 +894,7 @@ s_tag * env_facts_with_macro (s_env *env, s_tag *facts_tag, s_tag *spec_tag,
 
 s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
                              s_tag *predicate, s_tag *object,
-                             s_callable *callback, s_tag *dest)
+                             s_callable *callback, s_tag * volatile dest)
 {
   s_list *arguments;
   s_facts_cursor cursor = {0};
@@ -1555,17 +1555,19 @@ bool env_maybe_reload (s_env *env, const s_str *path)
 
 void env_longjmp (s_env *env, jmp_buf *jmp_buf)
 {
-  s_unwind_protect *unwind_protect;
-  if (env->unwind_protect && *jmp_buf > env->unwind_protect->buf) {
-    unwind_protect = env->unwind_protect;
-    while (unwind_protect->next && *jmp_buf > unwind_protect->next->buf) {
-      unwind_protect->jmp = &unwind_protect->next->buf;
-      unwind_protect = unwind_protect->next;
+  s_unwind_protect *up;
+  up = env->unwind_protect;
+  if (up && up->buf < *jmp_buf) {
+    while (up->next && up->next->buf < *jmp_buf) {
+      up->jmp = &up->next->buf;
+      up = up->next;
     }
-    unwind_protect->jmp = jmp_buf;
+    up->jmp = jmp_buf;
     longjmp(env->unwind_protect->buf, 1);
+    abort();
   }
   longjmp(*jmp_buf, 1);
+  abort();
 }
 
 const s_sym ** env_module (s_env *env, const s_sym **dest)
