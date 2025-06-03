@@ -903,7 +903,7 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
                              s_tag *predicate, s_tag *object,
                              s_callable *callback, s_tag * volatile dest)
 {
-  s_list *arguments;
+  s_list * volatile arguments;
   s_facts_cursor cursor = {0};
   s_fact *fact = NULL;
   s_fact_w fact_w = {0};
@@ -1388,10 +1388,6 @@ s_tag * env_let (s_env *env, s_tag *vars, s_tag *tag,
   switch(tmp.type) {
   case TAG_MAP:
     map = &tmp.data.map;
-    break;
-  case TAG_PSTRUCT:
-    map = &tmp.data.pstruct->pstruct_type->map;
-    // FIXME
     break;
   default:
     tag_clean(&tmp);

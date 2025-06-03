@@ -183,7 +183,7 @@ s_tag * kc3_block (s_tag *name, s_tag *do_block, s_tag * volatile dest)
   if (! block_init(&jump.block, name_sym))
     return NULL;
   if (setjmp(jump.block.buf)) {
-    tag_init_copy(dest, &jump.block.tag);
+    *dest = jump.block.tag;
     return dest;
   }
   env_unwind_protect_push(env, &jump.unwind_protect);

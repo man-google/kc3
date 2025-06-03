@@ -317,7 +317,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       args_final = args;
     }
     while (clause) {
-      if (! (frame = frame_new(env->frame, fn->frame))) {
+      if (! (frame = frame_new(env_frame, fn->frame))) {
         env->silence_errors = silence_errors;
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;

@@ -275,6 +275,7 @@ void tag_clean (s_tag *tag)
   case TAG_VOID:
     break;
   }
+  *tag = (s_tag) {0};
 }
 
 s_tag * tag_copy (s_tag *tag, s_tag *src)
