@@ -901,6 +901,7 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   s_fact *fact = NULL;
   s_fact_w fact_w = {0};
   s_tag tmp = {0};
+  s_unwind_protect unwind_protect;
   if (! facts_with_tags(facts, &cursor, subject, predicate, object))
     return NULL;
   if (! (arguments = list_new_pstruct_with_data(&g_sym_FactW, &fact_w,
@@ -917,11 +918,20 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
     tag_void(&tmp);
     if (! fact_w_init_fact(&fact_w, fact))
       goto clean;
+    env_unwind_protect_push(env, &unwind_protect);
+    if (setjmp(unwind_protect.buf)) {
+      env_unwind_protect_pop(env, &unwind_protect);
+      facts_cursor_clean(&cursor);
+      list_delete_all(arguments);
+      longjmp(*unwind_protect.jmp, 1);
+    }
     if (! env_eval_call_callable_args(env, callback, arguments, &tmp)) {
-      fact_w_clean(&fact_w);
+      env_unwind_protect_pop(env, &unwind_protect);
       goto clean;
     }
+    env_unwind_protect_pop(env, &unwind_protect);
     fact_w_clean(&fact_w);
+    fact_w_init(&fact_w);
   }
  ok:
   facts_cursor_clean(&cursor);

@@ -115,7 +115,7 @@ s_frame * frame_clean (s_frame *frame)
   assert(frame);
   next = frame->next;
   binding_delete_all(frame->bindings);
-  frame_delete(frame->fn_frame);
+  frame_delete_all(frame->fn_frame);
 #if HAVE_PTHREAD
   mutex_clean(&frame->mutex);
 #endif
