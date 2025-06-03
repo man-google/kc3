@@ -120,7 +120,7 @@ s_fn * fn_init_copy (s_fn *fn, const s_fn *src)
   tmp.macro = src->macro;
   tmp.special_operator = src->special_operator;
   if (src->frame &&
-      ! (tmp.frame = frame_new_ref(src->frame))) {
+      ! (tmp.frame = frame_new_copy(src->frame))) {
     fn_clean(&tmp);
     return NULL;
   }
