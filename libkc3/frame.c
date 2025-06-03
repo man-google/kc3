@@ -232,7 +232,9 @@ s_frame * frame_init (s_frame *frame, s_frame *next,
   s_frame tmp = {0};
   assert(frame);
   tmp.next = next;
-  tmp.fn_frame = frame_new_ref(fn_frame);
+  if (fn_frame &&
+      ! (tmp.fn_frame = frame_new_copy(fn_frame)))
+    return NULL;
 #if HAVE_PTHREAD
   mutex_init(&tmp.mutex);
 #endif
@@ -263,7 +265,7 @@ s_frame * frame_new_copy (s_frame *src)
   f = &frame;
   s = src;
   while (s) {
-    *f = frame_new(NULL, frame_new_copy(s->fn_frame));
+    *f = frame_new(NULL, s->fn_frame);
     frame_delete((*f)->fn_frame);
     if (s->bindings &&
         ! ((*f)->bindings = binding_new_copy(s->bindings)))
@@ -279,6 +281,9 @@ s_frame * frame_new_copy (s_frame *src)
 
 s_frame * frame_new_ref (s_frame *frame)
 {
+  err_puts("frame_new_ref: not implemented");
+  assert(! "frame_new_ref: not implemented");
+  abort();
   if (frame) {
 #if HAVE_PTHREAD
     mutex_lock(&frame->mutex);
