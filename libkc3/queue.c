@@ -17,7 +17,7 @@
 void queue_clean (s_queue *queue)
 {
   assert(queue);
-  list_delete_all(queue->head);
+  queue->head = list_delete_all(queue->head);
 }
 
 void queue_dequeue (s_queue *queue)

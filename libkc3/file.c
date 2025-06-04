@@ -318,7 +318,7 @@ s_list ** file_list (const s_str *path, s_list **dest)
   while ((dirent = readdir(dir))) {
     *tail = list_new_str_1_alloc(dirent->d_name, NULL);
     if (! *tail) {
-      list_delete_all(tmp);
+      tmp = list_delete_all(tmp);
       closedir(dir);
       return NULL;
     }

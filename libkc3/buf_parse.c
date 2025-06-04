@@ -584,7 +584,7 @@ sw buf_parse_do_block_inner (s_buf *buf, bool short_form,
   buf_save_restore_rpos(buf, &save);
  clean:
   if (list)
-    list_delete_all(list);
+    list = list_delete_all(list);
   buf_save_clean(buf, &save);
   return r;
  ok:
@@ -697,7 +697,7 @@ sw buf_parse_brackets (s_buf *buf, s_call *dest)
   r = 0;
   buf_save_restore_rpos(buf, &save);
   call_clean(&tmp);
-  list_delete_all(addr);
+  addr = list_delete_all(addr);
  clean:
   buf_save_clean(buf, &save);
   return r;
@@ -774,7 +774,7 @@ sw buf_parse_call_access (s_buf *buf, s_call *dest)
   r = result;
   goto clean;
  restore:
-  list_delete_all(key);
+  key = list_delete_all(key);
   call_clean(&tmp);
   buf_save_restore_rpos(buf, &save);
  clean:
@@ -2004,7 +2004,7 @@ sw buf_parse_fn_pattern (s_buf *buf, s_list **dest)
   *dest = tmp;
   return result;
  clean:
-  list_delete_all(tmp);
+  tmp = list_delete_all(tmp);
   return r;
 }
 
@@ -2266,7 +2266,7 @@ sw buf_parse_if_then (s_buf *buf, s_tag *dest, bool *has_else)
  clean:
   buf_save_clean(buf, &save);
   if (list)
-    list_delete_all(list);
+    list = list_delete_all(list);
   return r;
  ok:
   result += r;
@@ -2671,7 +2671,7 @@ sw buf_parse_list (s_buf *buf, s_list **list)
     goto restore;
   }
  restore:
-  list_delete_all(*list);
+  *list = list_delete_all(*list);
   buf_save_restore_rpos(buf, &save);
  clean:
   buf_save_clean(buf, &save);
@@ -2763,7 +2763,7 @@ sw buf_parse_list_paren (s_buf *buf, s_list **list)
     goto restore;
   }
  restore:
-  list_delete_all(*list);
+  *list = list_delete_all(*list);
   buf_save_restore_rpos(buf, &save);
  clean:
   buf_save_clean(buf, &save);
@@ -2915,12 +2915,12 @@ sw buf_parse_map (s_buf *buf, s_map *dest)
     goto restore;
   }
   r = result;
-  list_delete_all(keys);
-  list_delete_all(values);
+  keys = list_delete_all(keys);
+  values = list_delete_all(values);
   goto clean;
  restore:
-  list_delete_all(keys);
-  list_delete_all(values);
+  keys = list_delete_all(keys);
+  values = list_delete_all(values);
   buf_save_restore_rpos(buf, &save);
  clean:
   buf_save_clean(buf, &save);
@@ -3785,8 +3785,8 @@ sw buf_parse_struct (s_buf *buf, s_struct *dest)
  restore:
   buf_save_restore_rpos(buf, &save);
  clean:
-  list_delete_all(keys);
-  list_delete_all(values);
+  keys = list_delete_all(keys);
+  values = list_delete_all(values);
   buf_save_clean(buf, &save);
   return r;
 }
@@ -4964,7 +4964,7 @@ sw buf_parse_tuple (s_buf *buf, s_tuple *dest)
  clean:
   buf_save_clean(buf, &save);
   if (list)
-    list_delete_all(list);
+    list = list_delete_all(list);
   return r;
 }
 

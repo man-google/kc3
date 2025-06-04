@@ -773,7 +773,7 @@ s_fact * facts_replace_tags (s_facts *facts, s_tag *subject,
 #if HAVE_PTHREAD
       rwlock_unlock_w(&facts->rwlock);
 #endif
-      list_delete_all(list);
+      list = list_delete_all(list);
       return NULL;
     }
   }
@@ -781,7 +781,7 @@ s_fact * facts_replace_tags (s_facts *facts, s_tag *subject,
   while (list) {
     if (! facts_remove_fact(facts, &list->tag.data.fact, &b) ||
         ! b) {
-      list_delete_all(list);
+      list = list_delete_all(list);
       facts_transaction_rollback(facts, &transaction);
 #if HAVE_PTHREAD
       rwlock_unlock_w(&facts->rwlock);

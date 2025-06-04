@@ -93,10 +93,11 @@ s_list * list_delete (s_list *list)
   return next;
 }
 
-void list_delete_all (s_list *list)
+s_list * list_delete_all (s_list *list)
 {
   while (list)
     list = list_delete(list);
+  return NULL;
 }
 
 bool * list_each (s_list **list, p_callable *function, bool *dest)
@@ -115,12 +116,12 @@ bool * list_each (s_list **list, p_callable *function, bool *dest)
     tag_clean(&tmp);
     l = list_next(l);
   }
-  list_delete_all(arg);
+  arg = list_delete_all(arg);
   *dest = true;
   return dest;
  ko:
   tag_clean(&tmp);
-  list_delete_all(arg);
+  arg = list_delete_all(arg);
   return NULL;
 }
 
@@ -161,12 +162,12 @@ s_list ** list_filter (s_list **list, p_callable *function,
       *tail = list_delete(*tail);
     l = list_next(l);
   }
-  list_delete_all(arg);
+  arg = list_delete_all(arg);
   *dest = tmp;
   return dest;
  ko:
-  list_delete_all(tmp);
-  list_delete_all(arg);
+  tmp = list_delete_all(tmp);
+  arg = list_delete_all(arg);
   return NULL;
 }
 
@@ -347,12 +348,12 @@ s_list ** list_map (s_list **list, p_callable *function,
     tail = &(*tail)->next.data.list;
     l = list_next(l);
   }
-  list_delete_all(arg);
+  arg = list_delete_all(arg);
   *dest = tmp;
   return dest;
  ko:
-  list_delete_all(tmp);
-  list_delete_all(arg);
+  tmp = list_delete_all(tmp);
+  arg = list_delete_all(arg);
   return NULL;
 }
 
@@ -415,7 +416,7 @@ s_list * list_new_copy (s_list *src)
   }
   return list;
  ko:
-  list_delete_all(list);
+  list = list_delete_all(list);
   return NULL;
 }
 
@@ -511,7 +512,7 @@ s_list ** list_sort (s_list **list, s_list **dest)
     while (*t && compare_tag(&(*t)->tag, &l->tag) <= 0)
       t = &(*t)->next.data.list;
     if (! (new_ = list_new_tag_copy(&l->tag, *t))) {
-      list_delete_all(tmp);
+      tmp = list_delete_all(tmp);
       return NULL;
     }
     *t = new_;
@@ -568,12 +569,12 @@ s_list ** list_sort_by (s_list **list, p_callable *compare,
     *t = new_;
     l = list_next(l);
   }
-  list_delete_all(arg1);
+  arg1 = list_delete_all(arg1);
   *dest = tmp;
   return dest;
  ko:
-  list_delete_all(tmp);
-  list_delete_all(arg1);
+  tmp = list_delete_all(tmp);
+  arg1 = list_delete_all(arg1);
   return NULL;
 }
 
@@ -675,6 +676,6 @@ s_list ** list_unique (s_list **list, s_list **dest)
   *dest = tmp;
   return dest;
  ko:
-  list_delete_all(tmp);
+  tmp = list_delete_all(tmp);
   return NULL;
 }

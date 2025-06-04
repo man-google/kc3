@@ -119,6 +119,7 @@ s_frame * frame_clean (s_frame *frame)
 #if HAVE_PTHREAD
   mutex_clean(&frame->mutex);
 #endif
+  *frame = (s_frame) {0};
   return next;
 }
 
@@ -281,9 +282,6 @@ s_frame * frame_new_copy (s_frame *src)
 
 s_frame * frame_new_ref (s_frame *frame)
 {
-  err_puts("frame_new_ref: not implemented");
-  assert(! "frame_new_ref: not implemented");
-  abort();
   if (frame) {
 #if HAVE_PTHREAD
     mutex_lock(&frame->mutex);

@@ -239,7 +239,8 @@ void tag_clean (s_tag *tag)
   case TAG_COMPLEX:     pcomplex_clean(&tag->data.complex);    break;
   case TAG_COW:         pcow_clean(&tag->data.cow);            break;
   case TAG_INTEGER:     integer_clean(&tag->data.integer);     break;
-  case TAG_LIST:        list_delete_all(tag->data.list);       break;
+  case TAG_LIST:
+    tag->data.list = list_delete_all(tag->data.list);          break;
   case TAG_MAP:         map_clean(&tag->data.map);             break;
   case TAG_PSTRUCT:     pstruct_clean(&tag->data.pstruct);     break;
   case TAG_PSTRUCT_TYPE:

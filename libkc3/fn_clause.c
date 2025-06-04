@@ -21,7 +21,7 @@
 void fn_clause_clean (s_fn_clause *fn_clause)
 {
   assert(fn_clause);
-  list_delete_all(fn_clause->pattern);
+  fn_clause->pattern = list_delete_all(fn_clause->pattern);
   do_block_clean(&fn_clause->algo);
 }
 

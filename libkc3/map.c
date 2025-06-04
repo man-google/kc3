@@ -292,12 +292,12 @@ s_list ** map_map (const s_map *map, s_callable *callable,
                              list_new_tag_copy(map->value + i, NULL));
     *t = list_new(NULL);
     if (! eval_callable_call(callable, args, &(*t)->tag)) {
-      list_delete_all(args);
-      list_delete_all(tmp);
+      args = list_delete_all(args);
+      tmp = list_delete_all(tmp);
       return NULL;
     }
     t = &(*t)->next.data.list;
-    list_delete_all(args);
+    args = list_delete_all(args);
     i++;
   }
   *result = tmp;

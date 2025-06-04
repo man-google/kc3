@@ -29,6 +29,7 @@ void do_block_clean (s_do_block *do_block)
   while (i--)
     tag_clean(do_block->tag + i);
   free(do_block->tag);
+  *do_block = (s_do_block) {0};
 }
 
 void do_block_delete (s_do_block *do_block)

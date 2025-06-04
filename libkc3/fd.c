@@ -58,12 +58,12 @@ s_str * fd_read_until_eof (s32 fd, s_str *dest)
   }
   if (! str_init_concatenate_list(&tmp, (const s_list * const *) &list))
     goto clean;
-  list_delete_all(list);
+  list = list_delete_all(list);
   buf_clean(&buf);
   *dest = tmp;
   return dest;
  clean:
-  list_delete_all(list);
+  list = list_delete_all(list);
   buf_clean(&buf);
   return NULL;
 }

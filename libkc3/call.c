@@ -35,7 +35,7 @@ sw call_arity (const s_call *call)
 void call_clean (s_call *call)
 {
   assert(call);
-  list_delete_all(call->arguments);
+  call->arguments = list_delete_all(call->arguments);
   if (call->pcallable)
     pcallable_clean(&call->pcallable);
 }
@@ -85,7 +85,7 @@ s_call * call_init_call_cast (s_call *call, const s_sym *type)
     return NULL;
   tmp.arguments = list_new(next);
   if (! tmp.arguments) {
-    list_delete_all(next);
+    next = list_delete_all(next);
     return NULL;
   }
   tag_init_sym(&tmp.arguments->tag, type);
@@ -128,7 +128,7 @@ s_call * call_init_copy (s_call *call, s_call *src)
     return NULL;
   if (src->pcallable) {
     if (! pcallable_init_copy(&tmp.pcallable, &src->pcallable)) {
-      list_delete_all(tmp.arguments);
+      tmp.arguments = list_delete_all(tmp.arguments);
       return NULL;
     }
   }

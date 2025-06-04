@@ -206,7 +206,7 @@ s8 cfn_arity (const s_cfn *cfn)
 void cfn_clean (s_cfn *cfn)
 {
   assert(cfn);
-  list_delete_all(cfn->arg_types);
+  cfn->arg_types = list_delete_all(cfn->arg_types);
   if (cfn->cif.nargs)
     free(cfn->cif.arg_types);
 #if HAVE_PTHREAD
@@ -308,7 +308,7 @@ s_cfn * cfn_init_copy (s_cfn *cfn, const s_cfn *src)
   if (src->arity && src->cif.arg_types) {
     tmp.cif.arg_types = alloc((src->cif.nargs + 1) * sizeof(ffi_type *));
     if (! tmp.cif.arg_types) {
-      list_delete_all(tmp.arg_types);
+      tmp.arg_types = list_delete_all(tmp.arg_types);
       return NULL;
     }
     memcpy(tmp.cif.arg_types, src->cif.arg_types,

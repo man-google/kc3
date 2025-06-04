@@ -25,7 +25,7 @@
 void cow_clean (s_cow *cow)
 {
   assert(cow);
-  list_delete_all(cow->list);
+  cow->list = list_delete_all(cow->list);
 }
 
 void cow_delete (s_cow *cow)

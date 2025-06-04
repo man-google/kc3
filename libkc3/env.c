@@ -140,7 +140,7 @@ s_list ** env_args (s_env *env, s_list **dest)
   *dest = tmp;
   return dest;
  clean:
-  list_delete_all(tmp);
+  tmp = list_delete_all(tmp);
   return NULL;
 }
 
@@ -281,10 +281,9 @@ void env_clean (s_env *env)
   env->argv0_dir = NULL;
   str_delete(env->module_path);
   env->module_path = NULL;
-  list_delete_all(env->path);
-  env->path = NULL;
-  list_delete_all(env->search_modules_default);
-  env->search_modules_default = NULL;
+  env->path = list_delete_all(env->path);
+  env->search_modules_default =
+    list_delete_all(env->search_modules_default);
   if (g_kc3_env_global == env) {
     if (env->parent_env)
       g_kc3_env_global = env->parent_env;
@@ -416,7 +415,7 @@ s_tag * env_defmodule (s_env *env, const s_sym * const *name,
   tag_init_sym(dest, *name);
   result = dest;
  clean:
-  list_delete_all(env->search_modules);
+  env->search_modules = list_delete_all(env->search_modules);
   env->search_modules = search_modules;
   env->current_defmodule = prev_defmodule;
   env_module_is_loading_set(env, *name, false);
@@ -601,7 +600,7 @@ s_tag * env_facts_collect_with (s_env *env, s_facts *facts,
     l = &(*l)->next.data.list;
   }
  ok:
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   tmp.type = TAG_LIST;
   tmp.data.list = list;
   if (false) {
@@ -614,7 +613,7 @@ s_tag * env_facts_collect_with (s_env *env, s_facts *facts,
  clean:
   facts_with_cursor_clean(&cursor);
   tag_clean(&tmp);
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   return NULL;
 }
 
@@ -636,7 +635,7 @@ s_tag * env_facts_collect_with_tags (s_env *env, s_facts *facts,
                                                 false, NULL)))
     return NULL;
   if (! facts_with_tags(facts, &cursor, subject, predicate, object)) {
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     return NULL;
   }
   list = NULL;
@@ -658,15 +657,15 @@ s_tag * env_facts_collect_with_tags (s_env *env, s_facts *facts,
     l = &(*l)->next.data.list;
   }
  ok:
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   tmp.type = TAG_LIST;
   tmp.data.list = list;
   *dest = tmp;
   return dest;
  clean:
   facts_cursor_clean(&cursor);
-  list_delete_all(list);
-  list_delete_all(arguments);
+  list = list_delete_all(list);
+  arguments = list_delete_all(arguments);
   return NULL;
 }
 
@@ -689,7 +688,7 @@ s_tag * env_facts_first_with (s_env *env, s_facts *facts,
                                                 false, NULL)))
     return NULL;
   if (! facts_with_list(facts, &cursor, *spec)) {
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     return NULL;
   }
   if (! facts_with_cursor_next(&cursor, &fact))
@@ -701,7 +700,7 @@ s_tag * env_facts_first_with (s_env *env, s_facts *facts,
   env_unwind_protect_push(env, &unwind_protect);
   if (setjmp(unwind_protect.buf)) {
     env_unwind_protect_pop(env, &unwind_protect);
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     facts_with_cursor_clean(&cursor);
     longjmp(*unwind_protect.jmp, 1);
   }
@@ -714,7 +713,7 @@ s_tag * env_facts_first_with (s_env *env, s_facts *facts,
   fact_w_clean(&fact_w);
   facts_with_cursor_clean(&cursor);
  ok:
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   if (false) {
     err_write_1("env_facts_first_with: ");
     err_inspect_tag(&tmp);
@@ -725,7 +724,7 @@ s_tag * env_facts_first_with (s_env *env, s_facts *facts,
  clean:
   facts_with_cursor_clean(&cursor);
   tag_clean(&tmp);
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   return NULL;
 }
 
@@ -751,7 +750,7 @@ s_tag * env_facts_first_with_tags (s_env *env, s_facts *facts,
                                                 false, NULL)))
     return NULL;
   if (! facts_with_tags(facts, &cursor, subject, predicate, object)) {
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     return NULL;
   }
   if (! facts_cursor_next(&cursor, &fact))
@@ -764,7 +763,7 @@ s_tag * env_facts_first_with_tags (s_env *env, s_facts *facts,
   if (setjmp(unwind_protect.buf)) {
     env_unwind_protect_pop(env, &unwind_protect);
     facts_cursor_clean(&cursor);
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     longjmp(*unwind_protect.jmp, 1);
   }
   if (! env_eval_call_callable_args(env, callback, arguments, &tmp)) {
@@ -774,13 +773,13 @@ s_tag * env_facts_first_with_tags (s_env *env, s_facts *facts,
   env_unwind_protect_pop(env, &unwind_protect);
   facts_cursor_clean(&cursor);
  ok:
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   *dest = tmp;
   return dest;
  clean:
   facts_cursor_clean(&cursor);
   tag_clean(&tmp);
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   return NULL;
 }
 
@@ -797,14 +796,14 @@ s_tag * env_facts_with (s_env *env, s_facts *facts, s_list **spec,
                                                 false, NULL)))
     return NULL;
   if (! facts_with_list(facts, &cursor, *spec)) {
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     return NULL;
   }
   env_unwind_protect_push(env, &unwind_protect);
   if (setjmp(unwind_protect.buf)) {
     env_unwind_protect_pop(env, &unwind_protect);
     facts_with_cursor_clean(&cursor);
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     longjmp(*unwind_protect.jmp, 1);
   }
   while (1) {
@@ -826,7 +825,7 @@ s_tag * env_facts_with (s_env *env, s_facts *facts, s_list **spec,
   env_unwind_protect_pop(env, &unwind_protect);
   facts_with_cursor_clean(&cursor);
  ok:
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   *dest = tmp;
   return dest;
  clean:
@@ -834,7 +833,7 @@ s_tag * env_facts_with (s_env *env, s_facts *facts, s_list **spec,
   assert(! "env_facts_with: error");
   env_unwind_protect_pop(env, &unwind_protect);
   tag_clean(&tmp);
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   facts_with_cursor_clean(&cursor);
   return NULL;
 }
@@ -913,7 +912,7 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
                                                 false, NULL)))
     return NULL;
   if (! facts_with_tags(facts, &cursor, subject, predicate, object)) {
-    list_delete_all(arguments);
+    arguments = list_delete_all(arguments);
     return NULL;
   }
   while (1) {
@@ -931,7 +930,7 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
     if (setjmp(unwind_protect.buf)) {
       env_unwind_protect_pop(env, &unwind_protect);
       facts_cursor_clean(&cursor);
-      list_delete_all(arguments);
+      arguments = list_delete_all(arguments);
       longjmp(*unwind_protect.jmp, 1);
     }
     if (! env_eval_call_callable_args(env, callback, arguments, &tmp)) {
@@ -944,12 +943,12 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   }
  ok:
   facts_cursor_clean(&cursor);
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   *dest = tmp;
   return dest;
  clean:
   facts_cursor_clean(&cursor);
-  list_delete_all(arguments);
+  arguments = list_delete_all(arguments);
   return NULL;
 }
 
