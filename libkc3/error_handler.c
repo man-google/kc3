@@ -30,10 +30,11 @@ s_error_handler * error_handler_delete (s_error_handler *error_handler)
   return next;
 }
 
-void error_handler_delete_all (s_error_handler *error_handler)
+s_error_handler * error_handler_delete_all (s_error_handler *error_handler)
 {
   while (error_handler)
     error_handler = error_handler_delete(error_handler);
+  return NULL;
 }
 
 s_error_handler *

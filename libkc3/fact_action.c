@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "fact_action.h"
 
-void fact_action_delete_all (s_fact_action *action)
+s_fact_action * fact_action_delete_all (s_fact_action *action)
 {
   s_fact_action *next;
   while (action) {
@@ -21,4 +21,5 @@ void fact_action_delete_all (s_fact_action *action)
     free(action);
     action = next;
   }
+  return NULL;
 }

@@ -29,7 +29,7 @@ s_fn_clause * fn_clause_init (s_fn_clause *clause,
 
 /* Heap-allocation functions, call fn_clause_delete* after use. */
 s_fn_clause * fn_clause_delete (s_fn_clause *clause);
-void          fn_clause_delete_all (s_fn_clause *clause);
+s_fn_clause * fn_clause_delete_all (s_fn_clause *clause);
 s_fn_clause * fn_clause_new (s_fn_clause *next_clause);
 s_fn_clause * fn_clause_new_copy (s_fn_clause *src);
 

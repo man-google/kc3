@@ -262,8 +262,7 @@ void env_clean (s_env *env)
   //facts_save_file(env->facts, "debug.facts"); // debug
   env_globals_clean(env);
   env_toplevel_clean(env);
-  error_handler_delete_all(env->error_handler);
-  env->error_handler = NULL;
+  env->error_handler = error_handler_delete_all(env->error_handler);
   facts_delete(env->facts);
   env->facts = NULL;
   ops_delete(env->ops);
@@ -282,8 +281,7 @@ void env_clean (s_env *env)
   str_delete(env->module_path);
   env->module_path = NULL;
   env->path = list_delete_all(env->path);
-  env->search_modules_default =
-    list_delete_all(env->search_modules_default);
+  env->search_modules_default = list_delete_all(env->search_modules_default);
   if (g_kc3_env_global == env) {
     if (env->parent_env)
       g_kc3_env_global = env->parent_env;
@@ -1029,7 +1027,7 @@ bool env_global_set (s_env *env)
 
 void env_globals_clean (s_env *env)
 {
-  frame_delete_all(env->global_frame);
+  env->global_frame = frame_delete_all(env->global_frame);
 }
 
 s_env * env_globals_init (s_env *env)
@@ -2206,7 +2204,7 @@ s_list ** env_struct_type_get_spec (s_env *env,
     return NULL;
   if (tmp.type != TAG_LIST ||
       ! list_is_plist(tmp.data.list)) {
-    err_write_1("env_get_struct_type_spec: module ");
+    err_write_1("env_struct_type_get_spec: module ");
     err_write_1(module->str.ptr.pchar);
     err_puts(" has a defstruct that is not a property list");
     tag_clean(&tmp);
@@ -2251,7 +2249,7 @@ bool env_tag_ident_is_bound (s_env *env, const s_tag *tag)
 
 void env_toplevel_clean (s_env *env)
 {
-  frame_delete_all(env->frame);
+  env->frame = frame_delete_all(env->frame);
 }
 
 s_env * env_toplevel_init (s_env *env)

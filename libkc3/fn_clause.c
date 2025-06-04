@@ -35,10 +35,11 @@ s_fn_clause * fn_clause_delete (s_fn_clause *fn_clause)
   return next_clause;
 }
 
-void fn_clause_delete_all (s_fn_clause *fn_clause)
+s_fn_clause * fn_clause_delete_all (s_fn_clause *fn_clause)
 {
   while (fn_clause)
     fn_clause = fn_clause_delete(fn_clause);
+  return NULL;
 }
 
 s_fn_clause * fn_clause_init (s_fn_clause *fn_clause, s_fn_clause *next_clause)
