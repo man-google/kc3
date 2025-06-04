@@ -337,14 +337,14 @@ const s_sym ** sym_init_anon (const s_sym **sym, const s_str *prefix)
     if (! sym_find(&str)) {
       tmp = str_to_sym(&str);
       str_clean(&str);
-      list_delete_all(list);
+      list = list_delete_all(list);
       *sym = tmp;
       return sym;
     }
     str_clean(&str);
   }
   str_clean(&str);
-  list_delete_all(list);
+  list = list_delete_all(list);
   return NULL;
 }
 

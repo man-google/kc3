@@ -259,7 +259,7 @@ s_struct_type * struct_type_init_from_env (s_struct_type *st,
     return NULL;
   if (! struct_type_init(st, module, spec))
     return NULL;
-  list_delete_all(spec);
+  spec = list_delete_all(spec);
   return st;
 }
 
