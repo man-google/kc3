@@ -36,6 +36,7 @@ s_fn * fn_new_copy (const s_fn *fn);
 
 /* Observers. */
 s8 fn_arity (const s_fn *fn);
+s_list ** fn_get_free_vars (const s_fn *fn, s_list **dest);
 
 /* Operators. */
 s_fn * fn_set_name_if_null (s_fn *fn, const s_sym *module,

@@ -126,11 +126,10 @@ s_call * call_init_copy (s_call *call, s_call *src)
   if (! ident_init_copy(&tmp.ident, &src->ident) ||
       ! list_init_copy(&tmp.arguments, &src->arguments))
     return NULL;
-  if (src->pcallable) {
-    if (! pcallable_init_copy(&tmp.pcallable, &src->pcallable)) {
-      tmp.arguments = list_delete_all(tmp.arguments);
-      return NULL;
-    }
+  if (src->pcallable &&
+      ! pcallable_init_copy(&tmp.pcallable, &src->pcallable)) {
+    tmp.arguments = list_delete_all(tmp.arguments);
+    return NULL;
   }
   *call = tmp;
   return call;

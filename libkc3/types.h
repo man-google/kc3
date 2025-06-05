@@ -292,6 +292,11 @@ struct buf_save {
   uw wpos;
 };
 
+struct closure {
+  s_fn *fn;
+  s_frame *frame;
+};
+
 struct do_block {
   uw count;
   s_tag *tag;

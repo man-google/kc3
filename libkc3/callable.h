@@ -16,7 +16,7 @@
 #include "types.h"
 
 /* Heap-allocation functions, call callable_delete after use. */
-void         callable_delete (s_callable *callable);
+s_callable * callable_delete (s_callable *callable);
 s_callable * callable_new (void);
 s_callable * callable_new_copy (s_callable *callable);
 s_callable * callable_new_ref (s_callable *callable);

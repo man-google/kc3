@@ -42,8 +42,7 @@ void fn_clean (s_fn *fn)
 {
   assert(fn);
   fn->clauses = fn_clause_delete_all(fn->clauses);
-  frame_delete(fn->frame);
-  fn->frame = NULL;
+  fn->frame = frame_delete_all(fn->frame);
 }
 
 void fn_delete (s_fn *fn)
@@ -51,6 +50,33 @@ void fn_delete (s_fn *fn)
   fn_clean(fn);
   free(fn);
 }
+
+/*
+s_list ** fn_free_vars (const s_fn *fn, s_list **dest)
+{
+  s_fn_clause *c = NULL;
+  sw i = 0;
+  const s_sym *sym = NULL;
+  s_list **tail;
+  s_list *tmp = NULL;
+  assert(fn);
+  assert(dest);
+  tail = &tmp;
+  c = fn->clauses;
+  while (c) {
+    i = 0;
+    while (i < c->algo.count) {
+      
+      if (! (*tail = list_new_sym(sym, NULL))) {
+        tmp = list_delete_all(tmp);
+        return NULL;
+      }
+      tail = &(*tail)->next.data.list;
+      i++;
+    }
+  }
+}
+*/
 
 s_fn * fn_init (s_fn *fn, const s_sym *module)
 {
@@ -121,7 +147,7 @@ s_fn * fn_init_copy (s_fn *fn, const s_fn *src)
   tmp.macro = src->macro;
   tmp.special_operator = src->special_operator;
   if (src->frame &&
-      ! (tmp.frame = frame_new_ref(src->frame))) {
+      ! (tmp.frame = frame_new_copy(src->frame))) {
     fn_clean(&tmp);
     return NULL;
   }

@@ -125,21 +125,25 @@ bool env_eval_call (s_env *env, s_call *call, s_tag *dest)
   assert(env);
   assert(call);
   assert(dest);
-  (void) call;
   call_init_copy(&c, call);
+  if (c.pcallable)
+    pcallable_clean(&c.pcallable);
   if (! env_eval_call_resolve(env, &c)) {
     err_write_1("env_eval_call: env_eval_call_resolve: ");
     err_inspect_ident(&c.ident);
     err_write_1("\n");
-    return false;
+    result = false;
+    goto clean;
   }
   if (! c.pcallable || c.pcallable->type == CALLABLE_VOID) {
     err_write_1("env_eval_call: could not resolve call ");
     err_inspect_ident(&c.ident);
     err_write_1("\n");
     result = false;
+    goto clean;
   }
   result = env_eval_call_callable(env, &c, dest);
+ clean:
   call_clean(&c);
   return result;
 }
