@@ -84,7 +84,6 @@ s_callable * callable_new_copy (s_callable *src)
   case CALLABLE_VOID:
     break;
   }
-  tmp->ref_count = 1;
   return tmp;
  ko:
   free(tmp);

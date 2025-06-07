@@ -903,12 +903,16 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
   s_list * volatile arguments;
   s_facts_cursor cursor = {0};
   s_fact *fact = NULL;
-  s_fact_w fact_w = {0};
+  s_fact_w *fact_w = NULL;
   s_tag tmp = {0};
   s_unwind_protect unwind_protect;
-  if (! (arguments = list_new_pstruct_with_data(&g_sym_FactW, &fact_w,
-                                                false, NULL)))
+  if (! (arguments = list_new_pstruct(&g_sym_FactW, NULL)))
     return NULL;
+  if (! struct_allocate(arguments->tag.data.pstruct)) {
+    list_delete_all(arguments);
+    return NULL;
+  }
+  fact_w = arguments->tag.data.pstruct->data;
   if (! facts_with_tags(facts, &cursor, subject, predicate, object)) {
     arguments = list_delete_all(arguments);
     return NULL;
@@ -922,7 +926,7 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
       goto ok;
     }
     tag_void(&tmp);
-    if (! fact_w_init_fact(&fact_w, fact))
+    if (! fact_w_init_fact(fact_w, fact))
       goto clean;
     env_unwind_protect_push(env, &unwind_protect);
     if (setjmp(unwind_protect.buf)) {
@@ -936,8 +940,8 @@ s_tag * env_facts_with_tags (s_env *env, s_facts *facts, s_tag *subject,
       goto clean;
     }
     env_unwind_protect_pop(env, &unwind_protect);
-    fact_w_clean(&fact_w);
-    fact_w_init(&fact_w);
+    fact_w_clean(fact_w);
+    fact_w_init(fact_w);
   }
  ok:
   facts_cursor_clean(&cursor);
