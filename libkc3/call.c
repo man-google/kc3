@@ -127,7 +127,7 @@ s_call * call_init_copy (s_call *call, s_call *src)
       ! list_init_copy(&tmp.arguments, &src->arguments))
     return NULL;
   if (src->pcallable &&
-      ! pcallable_init_copy(&tmp.pcallable, &src->pcallable)) {
+      ! (tmp.pcallable = callable_new_copy(src->pcallable))) {
     tmp.arguments = list_delete_all(tmp.arguments);
     return NULL;
   }
