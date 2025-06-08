@@ -122,6 +122,7 @@ bool env_eval_call (s_env *env, s_call *call, s_tag *dest)
 {
   s_call c = {0};
   bool result;
+  s_unwind_protect unwind_protect;
   assert(env);
   assert(call);
   assert(dest);
@@ -142,7 +143,14 @@ bool env_eval_call (s_env *env, s_call *call, s_tag *dest)
     result = false;
     goto clean;
   }
+  env_unwind_protect_push(env, &unwind_protect);
+  if (setjmp(unwind_protect.buf)) {
+    env_unwind_protect_pop(env, &unwind_protect);
+    call_clean(&c);
+    longjmp(*unwind_protect.jmp, 1);
+  }
   result = env_eval_call_callable(env, &c, dest);
+  env_unwind_protect_pop(env, &unwind_protect);
  clean:
   call_clean(&c);
   return result;
