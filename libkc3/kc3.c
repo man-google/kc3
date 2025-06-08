@@ -193,9 +193,11 @@ s_tag * kc3_block (s_tag *name, s_tag *do_block, s_tag * volatile dest)
     longjmp(*jump.unwind_protect.jmp, 1);
   }
   if (! env_eval_tag(env, do_block, &tmp)) {
+    env_unwind_protect_pop(env, &jump.unwind_protect);
     block_clean(&jump.block);
     return NULL;
   }
+  env_unwind_protect_pop(env, &jump.unwind_protect);
   block_clean(&jump.block);
   *dest = tmp;
   return dest;
