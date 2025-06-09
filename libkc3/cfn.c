@@ -146,11 +146,12 @@ s_tag * cfn_apply (s_cfn *cfn, s_list *args, s_tag * volatile dest)
     env_unwind_protect_push(env, &unwind_protect);
     if (setjmp(unwind_protect.buf)) {
       env_unwind_protect_pop(env, &unwind_protect);
-      assert(env_global()->stacktrace == trace);
+      assert(env->stacktrace == trace);
       env->stacktrace = list_delete(trace);
       free(arg_pointers);
       free(arg_values);
       longjmp(*unwind_protect.jmp, 1);
+      abort();
     }
     ffi_call(&cfn->cif, cfn->ptr.f, result, arg_values);
     env_unwind_protect_pop(env, &unwind_protect);
