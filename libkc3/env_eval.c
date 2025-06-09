@@ -593,7 +593,6 @@ bool env_eval_callable (s_env *env, s_callable *callable,
     goto ok;
   case CALLABLE_FN:
     c = *callable;
-    assert(! c.data.fn.frame);
     c.data.fn.frame = env->frame;
     tmp = callable_new_copy(&c);
     if (! tmp->data.fn.module)
