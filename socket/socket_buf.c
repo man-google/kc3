@@ -84,7 +84,8 @@ s_socket_buf * socket_buf_init (s_socket_buf *sb, s64 sockfd,
   return sb;
 }
 
-s_socket_buf * socket_buf_init_accept (s_socket_buf *sb, p_socket listening)
+s_socket_buf * socket_buf_init_accept (s_socket_buf *sb,
+                                       s_socket *listening)
 {
   struct sockaddr        *addr;
   struct sockaddr_storage addr_storage = {0};
@@ -96,11 +97,11 @@ s_socket_buf * socket_buf_init_accept (s_socket_buf *sb, p_socket listening)
   assert(listening);
   addr = (struct sockaddr *) &addr_storage;
   addr_len = sizeof(addr_storage);
-  sockfd = accept(*listening, addr, &addr_len);
+  sockfd = accept(listening->socket, addr, &addr_len);
   if (sockfd < 0) {
     e = errno;
     err_write_1("socket_buf_init_accept: ");
-    err_inspect_s64_decimal(listening);
+    err_inspect_s64_decimal(&listening->socket);
     err_write_1(": accept: ");
     err_puts(strerror(e));
     assert(! "socket_buf_init_accept: accept");

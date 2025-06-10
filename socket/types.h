@@ -27,19 +27,21 @@
 
 /* 1 */
 typedef s64                  t_socket;
+typedef struct socket_       s_socket;
 typedef struct socket_buf    s_socket_buf;
 typedef struct http_request  s_http_request;
 typedef struct http_response s_http_response;
 
 /* 2 */
-typedef t_socket *p_socket;
+struct socket_ {
+  t_socket socket;
+};
 
-/* Struct 1 */
 struct socket_buf {
   struct sockaddr *addr;
   u32              addr_len;
   s_str            addr_str;
-  s64 sockfd;
+  t_socket sockfd;
   s_buf_rw buf_rw;
 };
 

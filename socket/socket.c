@@ -41,11 +41,11 @@ void socket_clean (void)
 #endif
 }
 
-void socket_close (p_socket s)
+void socket_close (s_socket *s)
 {
   assert(s);
-  close(*s);
-  *s = -1;
+  close(s->socket);
+  s->socket = -1;
 }
 
 bool socket_init (void)
@@ -65,22 +65,22 @@ bool socket_init (void)
   return true;
 }
 
-p_socket socket_init_accept (p_socket s, p_socket listening)
+s_socket * socket_init_accept (s_socket *s, s_socket *listening)
 {
   struct sockaddr   *addr;
   struct sockaddr_in addr_in = {0};
   socklen_t          addr_len;
   sw e;
-  s64 tmp;
+  s_socket tmp = {-1};
   assert(s);
   assert(listening);
   addr = (struct sockaddr *) &addr_in;
   addr_len = sizeof(addr_in);
-  tmp = accept(*listening, addr, &addr_len);
-  if (tmp < 0) {
+  tmp.socket = accept(listening->socket, addr, &addr_len);
+  if (tmp.socket < 0) {
     e = errno;
     err_write_1("socket_init_accept: ");
-    err_inspect_s64(listening);
+    err_inspect_s64(&listening->socket);
     err_write_1(": accept: ");
     err_puts(strerror(e));
     assert(! "socket_init_accept: accept");
@@ -90,8 +90,8 @@ p_socket socket_init_accept (p_socket s, p_socket listening)
   return s;
 }
 
-p_socket socket_init_listen (p_socket s, const s_str *host,
-                             const s_str *service)
+s_socket * socket_init_listen (s_socket *s, const s_str *host,
+                               const s_str *service)
 {
   struct addrinfo hints = {0};
   struct addrinfo *res;
@@ -99,7 +99,7 @@ p_socket socket_init_listen (p_socket s, const s_str *host,
   s32 e;
   const char *error_reason = "error";
   s32 i;
-  t_socket sockfd;
+  t_socket sockfd = -1;
   assert(s);
   assert(host);
   if (! socket_init())
@@ -118,7 +118,6 @@ p_socket socket_init_listen (p_socket s, const s_str *host,
     return NULL;
   }
   e = 0;
-  sockfd = -1;
   res = res0;
   while (res) {
     sockfd = socket(res->ai_family, SOCK_STREAM, res->ai_protocol);
@@ -144,7 +143,7 @@ p_socket socket_init_listen (p_socket s, const s_str *host,
       goto next;
     }
     freeaddrinfo(res0);
-    *s = sockfd;
+    s->socket = sockfd;
     return s;
   next:
     res = res->ai_next;

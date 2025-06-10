@@ -21,11 +21,11 @@ void socket_clean (void);
 bool socket_init (void);
 
 /* Stack-allocation compatible functions. */
-p_socket socket_init_accept (p_socket s, p_socket listening);
-p_socket socket_init_listen (p_socket s, const s_str *host,
-                             const s_str *service);
+s_socket * socket_init_accept (s_socket *s, s_socket *listening);
+s_socket * socket_init_listen (s_socket *s, const s_str *host,
+                               const s_str *service);
 
 /* Operators. */
-void socket_close (p_socket s);
+void socket_close (s_socket *s);
 
 #endif /* SOCKET_H */
