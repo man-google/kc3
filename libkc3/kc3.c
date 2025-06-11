@@ -190,6 +190,8 @@ s_tag * kc3_block (s_tag *name, s_tag *do_block, s_tag * volatile dest)
   }
   if (setjmp(jump.block.buf)) {
     *dest = jump.block.tag;
+    block_clean(&jump.block);
+    env_unwind_protect_pop(env, &jump.unwind_protect);
     return dest;
   }
   if (! env_eval_tag(env, do_block, &tmp)) {
