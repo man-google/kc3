@@ -184,23 +184,23 @@ s_tag * kc3_block (s_tag *name, s_tag *do_block, s_tag * volatile dest)
     return NULL;
   env_unwind_protect_push(env, &jump.unwind_protect);
   if (setjmp(jump.unwind_protect.buf)) {
-    block_clean(&jump.block);
     env_unwind_protect_pop(env, &jump.unwind_protect);
+    block_clean(&jump.block);
     longjmp(*jump.unwind_protect.jmp, 1);
   }
   if (setjmp(jump.block.buf)) {
     *dest = jump.block.tag;
-    block_clean(&jump.block);
     env_unwind_protect_pop(env, &jump.unwind_protect);
+    block_clean(&jump.block);
     return dest;
   }
   if (! env_eval_tag(env, do_block, &tmp)) {
-    block_clean(&jump.block);
     env_unwind_protect_pop(env, &jump.unwind_protect);
+    block_clean(&jump.block);
     return NULL;
   }
-  block_clean(&jump.block);
   env_unwind_protect_pop(env, &jump.unwind_protect);
+  block_clean(&jump.block);
   *dest = tmp;
   return dest;
 }
