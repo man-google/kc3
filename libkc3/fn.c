@@ -42,7 +42,7 @@ void fn_clean (s_fn *fn)
 {
   assert(fn);
   fn_clause_delete_all(fn->clauses);
-  frame_delete_all(fn->frame);
+  frame_delete(fn->frame);
 }
 
 void fn_delete (s_fn *fn)
@@ -110,7 +110,7 @@ s_fn * fn_init_cast (s_fn *fn, const s_sym * const *type, const s_tag *tag)
 }
 */
 
-s_fn * fn_init_copy (s_fn *fn, const s_fn *src)
+s_fn * fn_init_copy (s_fn *fn, s_fn *src)
 {
   s_fn tmp = {0};
   assert(fn);
@@ -120,7 +120,7 @@ s_fn * fn_init_copy (s_fn *fn, const s_fn *src)
   tmp.macro = src->macro;
   tmp.special_operator = src->special_operator;
   if (src->frame &&
-      ! (tmp.frame = frame_new_copy(src->frame))) {
+      ! (tmp.frame = frame_new_ref(src->frame))) {
     fn_clean(&tmp);
     return NULL;
   }
@@ -139,7 +139,7 @@ s_fn * fn_new (const s_sym *module)
   return fn;
 }
 
-s_fn * fn_new_copy (const s_fn *src)
+s_fn * fn_new_copy (s_fn *src)
 {
   s_fn *fn;
   assert(src);

@@ -17,6 +17,7 @@
 #include "frame.h"
 #include "ident.h"
 #include "list.h"
+#include "mutex.h"
 #include "sym.h"
 #include "tag.h"
 
@@ -115,7 +116,7 @@ s_frame * frame_clean (s_frame *frame)
   next = frame->next;
   binding_delete_all(frame->bindings);
   if (frame->fn_frame)
-    frame_delete_all(frame->fn_frame);
+    frame_delete(frame->fn_frame);
   return next;
 }
 
@@ -123,7 +124,25 @@ s_frame * frame_delete (s_frame *frame)
 {
   s_frame *next = NULL;
   if (frame) {
-    next = frame_clean(frame);
+#if HAVE_PTHREAD
+    mutex_lock(&frame->mutex);
+#endif
+    next = frame->next;
+    if (frame->ref_count <= 0) {
+      err_puts("frame_delete: invalid reference count");
+      assert(! "frame_delete: invalid reference count");
+      abort();
+    }
+    if (--frame->ref_count) {
+#if HAVE_PTHREAD
+      mutex_unlock(&frame->mutex);
+#endif
+      return next;
+    }
+#if HAVE_PTHREAD
+    mutex_unlock(&frame->mutex);
+#endif
+    frame_clean(frame);
     free(frame);
   }
   return next;
@@ -132,9 +151,18 @@ s_frame * frame_delete (s_frame *frame)
 void frame_delete_all (s_frame *frame)
 {
   s_frame *f;
+  bool must_clean = true;
   f = frame;
-  while (f)
+  while (f && must_clean) {
+#if HAVE_PTHREAD
+    mutex_lock(&f->mutex);
+#endif
+    must_clean = (f->ref_count == 1);
+#if HAVE_PTHREAD
+    mutex_unlock(&f->mutex);
+#endif
     f = frame_delete(f);
+  }
 }
 
 s_tag * frame_get (s_frame *frame, const s_sym *sym)
@@ -185,18 +213,17 @@ s_tag * frame_get_w (s_frame *frame, const s_sym *sym)
   return NULL;
 }
 
-s_frame * frame_init (s_frame *frame, s_frame *next,
-                      const s_frame *fn_frame)
+s_frame * frame_init (s_frame *frame, s_frame *next, s_frame *fn_frame)
 {
   s_frame tmp = {0};
   assert(frame);
   tmp.next = next;
-  tmp.fn_frame = frame_new_copy(fn_frame);
+  tmp.fn_frame = frame_new_ref(fn_frame);
   *frame = tmp;
   return frame;
 }
 
-s_frame * frame_new (s_frame *next, const s_frame *fn_frame)
+s_frame * frame_new (s_frame *next, s_frame *fn_frame)
 {
   s_frame *frame;
   frame = alloc(sizeof(s_frame));
@@ -218,7 +245,8 @@ s_frame * frame_new_copy (const s_frame *src)
   f = &frame;
   s = src;
   while (s) {
-    *f = frame_new(NULL, s->fn_frame);
+    *f = frame_new(NULL, frame_new_copy(s->fn_frame));
+    frame_delete((*f)->fn_frame); // decrement ref_count
     if (s->bindings &&
         ! ((*f)->bindings = binding_new_copy(s->bindings)))
       goto clean;
@@ -229,6 +257,25 @@ s_frame * frame_new_copy (const s_frame *src)
  clean:
   frame_delete_all(frame);
   return NULL;
+}
+
+s_frame * frame_new_ref (s_frame *src)
+{
+  if (src) {
+#if HAVE_PTHREAD
+    mutex_lock(&src->mutex);
+#endif
+    if (src->ref_count <= 0) {
+      err_puts("frame_new_ref: invalid reference count");
+      assert(! "frame_new_ref: invalid reference count");
+      abort();
+    }
+    src->ref_count++;
+#if HAVE_PTHREAD
+    mutex_unlock(&src->mutex);
+#endif
+  }
+  return src;
 }
 
 s_frame * frame_replace (s_frame *frame, const s_sym *sym,
