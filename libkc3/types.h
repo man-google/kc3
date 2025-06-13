@@ -317,12 +317,6 @@ struct fn_clause {
   s_fn_clause *next_clause;
 };
 
-struct frame {
-  s_binding *bindings;
-  s_frame *next;
-  s_frame *fn_frame;
-};
-
 struct fact_list {
   s_fact *fact;
   s_fact_list *next;
@@ -473,6 +467,14 @@ struct file_stat {
   s_time st_atim; /* Time of last access */
   s_time st_ctim; /* Time of last status change */
   s_time st_mtim; /* Time of last modification */
+};
+
+struct frame {
+  s_binding *bindings;
+  s_frame *fn_frame;
+  s_frame *next;
+  s_mutex mutex;
+  sw ref_count;
 };
 
 struct ht {
