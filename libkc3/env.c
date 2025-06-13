@@ -1394,7 +1394,7 @@ s_tag * env_kc3_def (s_env *env, const s_call *call, s_tag *dest)
 s_tag * env_let (s_env *env, s_tag *vars, s_tag *tag,
                  s_tag *dest)
 {
-  s_frame frame;
+  s_frame *frame;
   uw i;
   s_map *map;
   s_tag tmp = {0};
@@ -1402,11 +1402,11 @@ s_tag * env_let (s_env *env, s_tag *vars, s_tag *tag,
   assert(vars);
   assert(tag);
   assert(dest);
-  if (! frame_init(&frame, env->frame, NULL))
+  if (! (frame = frame_new(env->frame, NULL)))
     return NULL;
-  env->frame = &frame;
+  env->frame = frame;
   if (! env_eval_tag(env, vars, &tmp)) {
-    env->frame = frame_clean(&frame);
+    env->frame = frame_delete(frame);
     return NULL;
   }
   switch(tmp.type) {
@@ -1425,7 +1425,7 @@ s_tag * env_let (s_env *env, s_tag *vars, s_tag *tag,
     err_inspect_tag(tag);
     err_write_1("\n");
     assert(! "env_let: unsupported associative tag type");
-    env->frame = frame_clean(&frame);
+    env->frame = frame_delete(frame);
     return NULL;
   }
   i = 0;
@@ -1436,25 +1436,25 @@ s_tag * env_let (s_env *env, s_tag *vars, s_tag *tag,
       err_inspect_tag(map->key + i);
       err_write_1("\n");
       assert(! "env_let: binding key is not a symbol");
-      env->frame = frame_clean(&frame);
+      env->frame = frame_delete(frame);
       return NULL;
     }
-    if (! frame_binding_new_copy(&frame,
+    if (! frame_binding_new_copy(frame,
                                  map->key[i].data.sym,
                                  map->value + i)) {
       tag_clean(&tmp);
-      env->frame = frame_clean(&frame);
+      env->frame = frame_delete(frame);
       return NULL;
     }
     i++;
   }
   if (! env_eval_tag(env, tag, dest)) {
     tag_clean(&tmp);
-    env->frame = frame_clean(&frame);
+    env->frame = frame_delete(frame);
     return NULL;
   }
   tag_clean(&tmp);
-  env->frame = frame_clean(&frame);
+  env->frame = frame_delete(frame);
   return dest;
 }
 
