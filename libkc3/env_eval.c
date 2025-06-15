@@ -268,7 +268,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   s_list * volatile args_final = NULL;
   s_fn_clause *clause;
   s_frame *env_frame;
-  s_frame *frame = NULL;
+  s_frame * volatile frame = NULL;
   const s_sym *module;
   s_list *search_modules;
   bool silence_errors;
@@ -276,7 +276,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   s_list *tmp = NULL;
   s_list *trace;
   struct { /* XXX needed to sort unwind protect jumps
-              XXX only works if stack grows down */
+              XXX only works if stack grows down (amd64, i386) */
     s_unwind_protect unwind_macro;
     s_unwind_protect unwind_do;
     s_block          block;
