@@ -219,6 +219,10 @@ s_frame * frame_init (s_frame *frame, s_frame *next, s_frame *fn_frame)
   assert(frame);
   tmp.next = next;
   tmp.fn_frame = frame_new_ref(fn_frame);
+#if HAVE_PTHREAD
+  mutex_init(&tmp.mutex);
+#endif
+  tmp.ref_count = 1;
   *frame = tmp;
   return frame;
 }
