@@ -22,7 +22,7 @@ s_frame * frame_init (s_frame *frame, s_frame *next,
 
 /* Heap allocation functions, call frame_delete* after use. */
 s_frame * frame_delete (s_frame *frame);
-s_frame * frame_delete_all (s_frame *frame);
+void      frame_delete_all (s_frame *frame);
 s_frame * frame_new (s_frame *next, s_frame *fn_frame);
 s_frame * frame_new_copy (s_frame *src);
 s_frame * frame_new_ref (s_frame *src);

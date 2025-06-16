@@ -114,8 +114,8 @@ s_frame * frame_clean (s_frame *frame)
   s_frame *next;
   assert(frame);
   next = frame->next;
-  frame->bindings = binding_delete_all(frame->bindings);
-  frame->fn_frame = frame_delete_all(frame->fn_frame);
+  binding_delete_all(frame->bindings);
+  frame_delete_all(frame->fn_frame);
 #if HAVE_PTHREAD
   mutex_clean(&frame->mutex);
 #endif
@@ -151,7 +151,7 @@ s_frame * frame_delete (s_frame *frame)
   return next;
 }
 
-s_frame * frame_delete_all (s_frame *frame)
+void frame_delete_all (s_frame *frame)
 {
   s_frame *next = NULL;
   while (frame) {
@@ -168,7 +168,7 @@ s_frame * frame_delete_all (s_frame *frame)
 #if HAVE_PTHREAD
       mutex_unlock(&frame->mutex);
 #endif
-      return NULL;
+      return;
     }
 #if HAVE_PTHREAD
     mutex_unlock(&frame->mutex);
@@ -177,7 +177,6 @@ s_frame * frame_delete_all (s_frame *frame)
     free(frame);
     frame = next;
   }
-  return NULL;
 }
 
 s_tag * frame_get (s_frame *frame, const s_sym *sym)

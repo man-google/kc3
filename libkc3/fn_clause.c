@@ -21,7 +21,7 @@
 void fn_clause_clean (s_fn_clause *fn_clause)
 {
   assert(fn_clause);
-  fn_clause->pattern = list_delete_all(fn_clause->pattern);
+  list_delete_all(fn_clause->pattern);
   do_block_clean(&fn_clause->algo);
 }
 
@@ -35,11 +35,10 @@ s_fn_clause * fn_clause_delete (s_fn_clause *fn_clause)
   return next_clause;
 }
 
-s_fn_clause * fn_clause_delete_all (s_fn_clause *fn_clause)
+void fn_clause_delete_all (s_fn_clause *fn_clause)
 {
   while (fn_clause)
     fn_clause = fn_clause_delete(fn_clause);
-  return NULL;
 }
 
 s_fn_clause * fn_clause_init (s_fn_clause *fn_clause, s_fn_clause *next_clause)

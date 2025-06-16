@@ -37,7 +37,7 @@ s_list  * list_init_tag_copy (s_list *list, s_tag *tag,
 
 /* Heap-allocation functions, call list_delete after use */
 s_list * list_delete (s_list *list);
-s_list * list_delete_all (s_list *list);
+void     list_delete_all (s_list *list);
 void     list_f_clean (s_list **list);
 s_list * list_new (s_list *next);
 s_list * list_new_1 (const char *p);

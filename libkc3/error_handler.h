@@ -16,14 +16,13 @@
 #include "types.h"
 
 /* stack-allocation compatible functions */
-void              error_handler_clean (s_error_handler *error_handler);
-s_error_handler * error_handler_init (s_error_handler *error_handler,
+void              error_handler_clean (s_error_handler *eh);
+s_error_handler * error_handler_init (s_error_handler *eh,
                                       s_error_handler *next);
 
 /* Heap allocation functions, call error_handler_delete* after use. */
+s_error_handler * error_handler_delete (s_error_handler *eh);
+void              error_handler_delete_all (s_error_handler *eh);
 s_error_handler * error_handler_new (s_error_handler *next);
-s_error_handler * error_handler_delete (s_error_handler *error_handler);
-s_error_handler * error_handler_delete_all
-  (s_error_handler *error_handler);
 
 #endif /* LIBKC3_ERROR_HANDLER_H */

@@ -41,8 +41,8 @@ s8 fn_arity (const s_fn *fn)
 void fn_clean (s_fn *fn)
 {
   assert(fn);
-  fn->clauses = fn_clause_delete_all(fn->clauses);
-  fn->frame = frame_delete_all(fn->frame);
+  fn_clause_delete_all(fn->clauses);
+  frame_delete_all(fn->frame);
 }
 
 void fn_delete (s_fn *fn)

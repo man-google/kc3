@@ -72,7 +72,7 @@ s_tag * to_lisp_list (s_list *list, s_tag *dest)
   }
   return tag_init_list(dest, tmp);
  ko:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return NULL;
 }
 

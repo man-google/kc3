@@ -166,7 +166,7 @@ bool env_eval_call_arguments (s_env *env, s_list *args,
   while (args) {
     *tail = list_new(NULL);
     if (! env_eval_tag(env, &args->tag, &(*tail)->tag)) {
-      tmp = list_delete_all(tmp);
+      list_delete_all(tmp);
       err_write_1("env_eval_call_arguments: invalid argument: ");
       err_inspect(&args->tag);
       err_write_1("\n");
@@ -246,12 +246,12 @@ bool env_eval_call_cfn_args (s_env *env, s_cfn *cfn, s_list *arguments,
     }
   }
   if (! cfn_apply(cfn, args_final, &tag)) {
-    args = list_delete_all(args);
+    list_delete_all(args);
     //env->frame = frame_clean(&frame);
     return false;
   }
   *dest = tag;
-  args = list_delete_all(args);
+  list_delete_all(args);
   //env->frame = frame_clean(&frame);
   return true;
 }
@@ -315,13 +315,13 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       env_unwind_protect_push(env, &jump.unwind_args);
       if (setjmp(jump.unwind_args.buf)) {
         env_unwind_protect_pop(env, &jump.unwind_args);
-        env->search_modules = list_delete_all(env->search_modules);
+        list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         longjmp(*jump.unwind_args.jmp, 1);
       }
       if (! env_eval_call_arguments(env, arguments, &args)) {
         env_unwind_protect_pop(env, &jump.unwind_args);
-        env->search_modules = list_delete_all(env->search_modules);
+        list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         return false;
       }
@@ -331,7 +331,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     while (clause) {
       if (! (frame = frame_new(env_frame, fn->frame))) {
         env->silence_errors = silence_errors;
-        env->search_modules = list_delete_all(env->search_modules);
+        list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         return false;
       }
@@ -344,7 +344,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
         assert(env->frame == frame);
         env->frame = env_frame;
         frame_delete(frame);
-        args = list_delete_all(args);
+        list_delete_all(args);
         longjmp(*jump.unwind_clause.jmp, 1);
       }
       if (env_eval_equal_list(env, fn->macro || fn->special_operator,
@@ -376,8 +376,8 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       err_puts("stacktrace:");
       err_inspect_stacktrace(env->stacktrace);
       err_write_1("\n");
-      args = list_delete_all(args);
-      env->search_modules = list_delete_all(env->search_modules);
+      list_delete_all(args);
+      list_delete_all(env->search_modules);
       env->search_modules = search_modules;
       return false;
     }
@@ -387,9 +387,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     env->frame = frame;
   }
   if (! (trace = list_new(env->stacktrace))) {
-    args = list_delete_all(args);
-    tmp = list_delete_all(tmp);
-    env->search_modules = list_delete_all(env->search_modules);
+    list_delete_all(args);
+    list_delete_all(tmp);
+    list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     assert(env->frame == frame);
     env->frame = env_frame;
@@ -402,9 +402,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   env->stacktrace = trace;
   if (! block_init(&jump.block, fn->ident.sym)) {
     env->stacktrace = list_delete(env->stacktrace);
-    args = list_delete_all(args);
-    tmp = list_delete_all(tmp);
-    env->search_modules = list_delete_all(env->search_modules);
+    list_delete_all(args);
+    list_delete_all(tmp);
+    list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     assert(env->frame == frame);
     env->frame = env_frame;
@@ -439,9 +439,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     env_unwind_protect_pop(env, &jump.unwind_do);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
-    args = list_delete_all(args);
-    tmp = list_delete_all(tmp);
-    env->search_modules = list_delete_all(env->search_modules);
+    list_delete_all(args);
+    list_delete_all(tmp);
+    list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     env->frame = env_frame;
     frame_delete(frame);
@@ -453,9 +453,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     block_clean(&jump.block);
     assert(env->stacktrace == trace);
     env->stacktrace = list_delete(env->stacktrace);
-    args = list_delete_all(args);
-    tmp = list_delete_all(tmp);
-    env->search_modules = list_delete_all(env->search_modules);
+    list_delete_all(args);
+    list_delete_all(tmp);
+    list_delete_all(env->search_modules);
     env->search_modules = search_modules;
     env->frame = env_frame;
     frame_delete(frame);
@@ -466,9 +466,9 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   block_clean(&jump.block);
   assert(env->stacktrace == trace);
   env->stacktrace = list_delete(env->stacktrace);
-  args = list_delete_all(args);
-  tmp = list_delete_all(tmp);
-  env->search_modules = list_delete_all(env->search_modules);
+  list_delete_all(args);
+  list_delete_all(tmp);
+  list_delete_all(env->search_modules);
   env->search_modules = search_modules;
   env->frame = env_frame;
   frame_delete(frame);
@@ -725,7 +725,7 @@ bool env_eval_equal_list (s_env *env, bool macro, s_list *a,
   *dest = tmp;
   return true;
  ko:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return false;
 }
 
@@ -1166,7 +1166,7 @@ bool env_eval_list (s_env *env, s_list *list, s_tag *dest)
   dest->data.list = tmp;
   return true;
  ko:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return false;
 }
 
@@ -1360,7 +1360,7 @@ bool env_eval_quote_list (s_env *env, s_list *list, s_tag *dest)
   dest->data.list = tmp;
   return true;
  ko:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return false;
 }
 

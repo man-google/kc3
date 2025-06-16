@@ -1276,7 +1276,7 @@ bool str_parse_eval (const s_str *str, s_tag *dest)
   buf_clean(&out_buf);
   return true;
  restore:
-  list = list_delete_all(list);
+  list_delete_all(list);
   buf_clean(&out_buf);
   return false;
 }
@@ -1452,7 +1452,7 @@ s_list ** str_split_words (const s_str *str, s_list **dest)
   *dest = tmp;
   return dest;
  clean:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return NULL;  
 }
 
@@ -1490,7 +1490,7 @@ s_list ** str_split (const s_str *str, const s_str *separator,
   *dest = tmp;
   return dest;
  clean:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return NULL;
 }
 
@@ -1519,7 +1519,7 @@ s_list ** str_split_list (const s_str *str,
   *dest = tmp;
   return dest;
  clean:
-  tmp = list_delete_all(tmp);
+  list_delete_all(tmp);
   return NULL;
 }
 
