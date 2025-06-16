@@ -432,6 +432,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     frame_delete(frame);
     return false;
   }
+ ok:
   env_unwind_protect_pop(env, &jump.unwind_do);
   assert(env->stacktrace == trace);
   env->stacktrace = list_delete(env->stacktrace);
@@ -442,7 +443,6 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
   assert(env->frame == frame);
   env->frame = env_frame;
   frame_delete(frame);
- ok:
   block_clean(&jump.block);
   if (fn->macro) {
     env_unwind_protect_push(env, &jump.unwind_macro);
