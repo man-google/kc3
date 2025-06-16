@@ -150,18 +150,29 @@ s_frame * frame_delete (s_frame *frame)
 
 void frame_delete_all (s_frame *frame)
 {
-  s_frame *f;
-  bool must_clean = true;
-  f = frame;
-  while (f && must_clean) {
+  s_frame *next = NULL;
+  while (frame) {
 #if HAVE_PTHREAD
-    mutex_lock(&f->mutex);
+    mutex_lock(&frame->mutex);
 #endif
-    must_clean = (f->ref_count == 1);
+    next = frame->next;
+    if (frame->ref_count <= 0) {
+      err_puts("frame_delete: invalid reference count");
+      assert(! "frame_delete: invalid reference count");
+      abort();
+    }
+    if (--frame->ref_count) {
 #if HAVE_PTHREAD
-    mutex_unlock(&f->mutex);
+      mutex_unlock(&frame->mutex);
 #endif
-    f = frame_delete(f);
+      return;
+    }
+#if HAVE_PTHREAD
+    mutex_unlock(&frame->mutex);
+#endif
+    frame_clean(frame);
+    free(frame);
+    frame = next;
   }
 }
 
