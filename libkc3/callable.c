@@ -19,7 +19,7 @@
 #include "mutex.h"
 #include "tag.h"
 
-s_callable * callable_delete (s_callable *callable)
+void callable_delete (s_callable *callable)
 {
   assert(callable);
 #if HAVE_PTHREAD
@@ -46,12 +46,12 @@ s_callable * callable_delete (s_callable *callable)
   mutex_clean(&callable->mutex);
 #endif
   free(callable);
-  return NULL;
+  return;
  clean:
 #if HAVE_PTHREAD
   mutex_unlock(&callable->mutex);
 #endif
-  return NULL;
+  return;
 }
 
 s_callable * callable_new (void)
