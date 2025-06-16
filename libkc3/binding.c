@@ -27,13 +27,12 @@ s_binding * binding_delete (s_binding *binding)
   return next;
 }
 
-s_binding * binding_delete_all (s_binding *binding)
+void binding_delete_all (s_binding *binding)
 {
   s_binding *b;
   b = binding;
   while (b)
     b = binding_delete(b);
-  return NULL;
 }
 
 s_binding ** binding_find (s_binding **binding, const s_sym *name)
@@ -115,6 +114,6 @@ s_binding * binding_new_copy (s_binding *src)
   }
   return binding;
  clean:
-  binding = binding_delete_all(binding);
+  binding_delete_all(binding);
   return NULL;
 }

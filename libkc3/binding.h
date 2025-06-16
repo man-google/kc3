@@ -23,7 +23,7 @@ s_binding * binding_init (s_binding *binding, const s_sym *name,
 
 /* Heap-allocation functions, call binding_delete* after use. */
 s_binding * binding_delete (s_binding *binding);
-s_binding * binding_delete_all (s_binding *binding);
+void        binding_delete_all (s_binding *binding);
 s_binding * binding_new (const s_sym *name, s_binding *next);
 s_binding * binding_new_copy (s_binding *src);
 
