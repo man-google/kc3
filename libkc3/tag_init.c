@@ -307,19 +307,6 @@ s_tag * tag_init_pstruct_type (s_tag *tag, const s_sym *module,
   return tag;
 }
 
-s_tag * tag_init_pstruct_type_clean (s_tag *tag,
-                                     const s_struct_type *st,
-                                     const s_cfn *clean)
-{
-  s_tag tmp = {0};
-  assert(tag);
-  tmp.type = TAG_PSTRUCT_TYPE;
-  if (! pstruct_type_init_clean(&tmp.data.pstruct_type, st, clean))
-    return NULL;
-  *tag = tmp;
-  return tag;
-}
-
 s_tag * tag_init_ptr (s_tag *tag, void *p)
 {
   s_tag tmp = {0};
@@ -998,21 +985,6 @@ s_tag * tag_new_pstruct_type (const s_sym *module, s_list *spec)
     return NULL;
   tag->type = TAG_PSTRUCT_TYPE;
   if (! pstruct_type_init(&tag->data.pstruct_type, module, spec)) {
-    free(tag);
-    return NULL;
-  }
-  return tag;
-}
-
-s_tag * tag_new_pstruct_type_clean (const s_struct_type *st,
-                                    const s_cfn *clean)
-{
-  s_tag *tag;
-  tag = alloc(sizeof(s_tag));
-  if (! tag)
-    return NULL;
-  tag->type = TAG_PSTRUCT_TYPE;
-  if (! pstruct_type_init_clean(&tag->data.pstruct_type, st, clean)) {
     free(tag);
     return NULL;
   }
@@ -1741,19 +1713,6 @@ s_tag * tag_pstruct_type (s_tag *tag, const s_sym *module, s_list *spec)
   tag_clean(tag);
   tmp.type = TAG_PSTRUCT_TYPE;
   if (! pstruct_type_init(&tmp.data.pstruct_type, module, spec))
-    return NULL;
-  *tag = tmp;
-  return tag;
-}
-
-s_tag * tag_pstruct_type_clean (s_tag *tag, const s_struct_type *st,
-                                const s_cfn *clean)
-{
-  s_tag tmp = {0};
-  assert(tag);
-  tag_clean(tag);
-  tmp.type = TAG_PSTRUCT_TYPE;
-  if (! pstruct_type_init_clean(&tmp.data.pstruct_type, st, clean))
     return NULL;
   *tag = tmp;
   return tag;

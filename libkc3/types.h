@@ -163,9 +163,6 @@ typedef enum {
   TAG_UW,
   TAG_LIST,
   TAG_MAP,
-  TAG_PCALLABLE,
-  TAG_PSTRUCT,
-  TAG_PSTRUCT_TYPE,
   TAG_PTAG,
   TAG_PTR,
   TAG_PTR_FREE,
@@ -176,7 +173,10 @@ typedef enum {
   TAG_TUPLE,
   TAG_UNQUOTE,
   TAG_VAR,
-  TAG_IDENT
+  TAG_IDENT,
+  TAG_PCALLABLE,
+  TAG_PSTRUCT,
+  TAG_PSTRUCT_TYPE
 } e_tag_type;
 
 /* structs */
@@ -830,6 +830,7 @@ struct env {
   char            **argv;
   s_str            *argv0_dir;
   s_block          *block;
+  bool              cleaning;
   const s_sym      *current_defmodule;
   s_buf            *err;
   s_error_handler  *error_handler;

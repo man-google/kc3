@@ -66,22 +66,3 @@ p_struct_type * pstruct_type_init_copy (p_struct_type *st,
   *st = tmp;
   return st;
 }
-
-p_struct_type * pstruct_type_init_clean (p_struct_type *st,
-                                         const s_struct_type *src,
-                                         const s_cfn *clean)
-{
-  p_struct_type tmp = NULL;
-  assert(st);
-  assert(src);
-  assert(clean);
-  if (! (tmp = alloc(sizeof(s_struct_type))))
-    return NULL;
-  if (! struct_type_init_copy(tmp, src)) {
-    free(tmp);
-    return NULL;
-  }
-  tmp->clean = (f_clean) clean->ptr.f;
-  *st = tmp;
-  return st;
-}

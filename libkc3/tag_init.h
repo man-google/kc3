@@ -46,9 +46,6 @@ s_tag * tag_init_pstruct_with_data (s_tag *tag, const s_sym *module,
 s_tag * tag_init_pstruct_with_type (s_tag *tag, s_struct_type *st);
 s_tag * tag_init_pstruct_type (s_tag *tag, const s_sym *module,
                                s_list *spec);
-s_tag * tag_init_pstruct_type_clean (s_tag *tag,
-                                     const s_struct_type *st,
-                                     const s_cfn *clean);
 s_tag * tag_init_ptr (s_tag *tag, void *p);
 s_tag * tag_init_ptr_free (s_tag *tag, void *p);
 s_tag * tag_init_quote (s_tag *tag, s_tag *src);
@@ -120,8 +117,6 @@ s_tag * tag_new_pstruct_with_data (const s_sym *module, void *data,
                                    bool free_data);
 s_tag * tag_new_pstruct_with_type (s_struct_type *st);
 s_tag * tag_new_pstruct_type (const s_sym *module, s_list *spec);
-s_tag * tag_new_pstruct_type_clean (const s_struct_type *st,
-                                    const s_cfn *clean);
 s_tag * tag_new_ptr (void *p);
 s_tag * tag_new_ptr_free (void *p);
 s_tag * tag_new_quote (s_tag *src);
@@ -190,8 +185,6 @@ s_tag * tag_pstruct_with_data (s_tag *tag, const s_sym *module,
 s_tag * tag_pstruct_with_type (s_tag *tag, s_struct_type *st);
 s_tag * tag_pstruct_type (s_tag *tag, const s_sym *module,
                           s_list *spec);
-s_tag * tag_pstruct_type_clean (s_tag *tag, const s_struct_type *st,
-                                const s_cfn *clean);
 s_tag * tag_ptr (s_tag *tag, void *p);
 s_tag * tag_ptr_free (s_tag *tag, void *p);
 s_tag * tag_quote (s_tag *tag, s_tag *src);

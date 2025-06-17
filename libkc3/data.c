@@ -335,8 +335,7 @@ bool data_clean (const s_sym *type, void *data)
   if (! struct_type_find(type, &st))
     return false;
   if (st) {
-    if (! pstruct_type_init_copy(&s.pstruct_type, &st))
-      return false;
+    s.pstruct_type = st;
     s.data = data;
     struct_clean(&s);
     return true;

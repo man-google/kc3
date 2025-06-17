@@ -308,19 +308,6 @@ s_list * list_init_pstruct_type (s_list *list, const s_sym *module,
   return list;
 }
 
-s_list * list_init_pstruct_type_clean (s_list *list,
-                                       const s_struct_type *st,
-                                       const s_cfn *clean, s_list *next)
-{
-  s_list tmp = {0};
-  assert(list);
-  list_init(&tmp, next);
-  if (! tag_init_pstruct_type_clean(&tmp.tag, st, clean))
-    return NULL;
-  *list = tmp;
-  return list;
-}
-
 s_list * list_init_ptr (s_list *list, void *p, s_list *next)
 {
   s_list tmp = {0};
@@ -1007,20 +994,6 @@ s_list * list_new_pstruct_type (const s_sym *module, s_list *spec,
   if (! list)
     return NULL;
   if (! tag_init_pstruct_type(&list->tag, module, spec)) {
-    free(list);
-    return NULL;
-  }
-  return list;
-}
-
-s_list * list_new_pstruct_type_clean (const s_struct_type *st,
-                                      const s_cfn *clean, s_list *next)
-{
-  s_list *list;
-  list = list_new(next);
-  if (! list)
-    return NULL;
-  if (! tag_init_pstruct_type_clean(&list->tag, st, clean)) {
     free(list);
     return NULL;
   }

@@ -40,9 +40,12 @@ s8 fn_arity (const s_fn *fn)
 
 void fn_clean (s_fn *fn)
 {
+  s_env *env;
   assert(fn);
+  env = env_global();
   fn_clause_delete_all(fn->clauses);
-  frame_delete(fn->frame);
+  if (! env->cleaning && ! env->pass_by_copy)
+    frame_delete(fn->frame);
 }
 
 void fn_delete (s_fn *fn)

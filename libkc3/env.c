@@ -285,6 +285,7 @@ void env_clean (s_env *env)
     env = g_kc3_env_default;
   if (! env)
     return;
+  env->cleaning = true;
   if (false) {
     uw size;
     sym_list_size(&size);
@@ -370,9 +371,6 @@ const s_sym * env_def_clean (s_env *env, const s_sym *module,
                              const s_tag *clean)
 {
   s_struct_type *st;
-  s_tag tag_module_name;
-  s_tag tag_st;
-  s_tag tag_struct_type;
   if (! env_struct_type_find(env, module, &st))
     return NULL;
   if (! st) {
@@ -390,16 +388,7 @@ const s_sym * env_def_clean (s_env *env, const s_sym *module,
     assert(! "env_def_clean: module clean method must be a Cfn");
     return NULL;
   }
-  tag_init_sym(&tag_module_name, module);
-  tag_init_pstruct_type_clean(&tag_st, st,
-                              &clean->data.pcallable->data.cfn);
-  tag_init_sym(&tag_struct_type, &g_sym_struct_type);
-  if (! facts_replace_tags(env->facts, &tag_module_name,
-                           &tag_struct_type, &tag_st)) {
-    tag_clean(&tag_st);
-    return NULL;
-  }
-  tag_clean(&tag_st);
+  st->clean = (f_clean) clean->data.pcallable->data.cfn.ptr.f;
   return module;
 }
 
@@ -2112,7 +2101,8 @@ s_struct_type ** env_struct_type_find (s_env *env,
   tag_init_sym(&tag_module, module);
   tag_init_sym(&tag_struct_type, &g_sym_struct_type);
   tag_init_var(&tag_var, &g_sym_StructType);
-  if (! env_module_maybe_reload(env, module)) {
+  if (! env->cleaning &&
+      ! env_module_maybe_reload(env, module)) {
     err_write_1("env_struct_type_find: env_module_maybe_reload(");
     err_inspect_sym(&module);
     err_puts(")");
@@ -2276,6 +2266,7 @@ bool env_tag_ident_is_bound (s_env *env, const s_tag *tag)
 void env_toplevel_clean (s_env *env)
 {
   frame_delete_all(env->frame);
+  env->frame = NULL;
 }
 
 s_env * env_toplevel_init (s_env *env)

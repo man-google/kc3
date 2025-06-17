@@ -42,7 +42,7 @@ void struct_type_clean (s_struct_type *st)
 #endif
 }
 
-void * struct_type_copy_data (const s_struct_type *st, void *dest,
+void * struct_type_copy_data (s_struct_type *st, void *dest,
                               const void *src)
 {
   uw count;
@@ -52,6 +52,7 @@ void * struct_type_copy_data (const s_struct_type *st, void *dest,
   assert(st);
   assert(dest);
   assert(src);
+  struct_type_new_ref(st);
   i = 0;
   count = st->map.count;
   while (i < count) {
