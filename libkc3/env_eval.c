@@ -554,7 +554,6 @@ bool env_eval_callable (s_env *env, s_callable *callable,
   assert(env);
   assert(callable);
   assert(dest);
-  (void) env;
   switch (callable->type) {
   case CALLABLE_CFN:
     if (! pcallable_init_copy(&tmp, &callable))
@@ -564,11 +563,12 @@ bool env_eval_callable (s_env *env, s_callable *callable,
     goto ok;
   case CALLABLE_FN:
     c = *callable;
-    c.data.fn.frame = env->frame;
+    c.data.fn.frame = NULL;
     if (! (tmp = callable_new_copy(&c)))
       return false;
     if (! tmp->data.fn.module)
       tmp->data.fn.module = env->current_defmodule;
+    c.data.fn.frame = frame_new_copy(env->frame);
     goto ok;
   case CALLABLE_VOID:
     err_puts("env_eval_callable: CALLABLE_VOID");

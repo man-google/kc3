@@ -122,8 +122,10 @@ s_frame * frame_clean (s_frame *frame)
 
 s_frame * frame_delete (s_frame *frame)
 {
+  s_env *env;
   s_frame *next = NULL;
-  if (frame) {
+  env = env_global();
+  if (frame && ! env->cleaning) {
 #if HAVE_PTHREAD
     mutex_lock(&frame->mutex);
 #endif
