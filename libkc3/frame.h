@@ -27,6 +27,7 @@ s_frame * frame_new_ref (s_frame *src);
 /* Destructors. */
 s_frame * frame_delete (s_frame *frame);
 void      frame_delete_all (s_frame *frame);
+void      frame_delete_rec (s_frame *frame);
 
 /* Operators. */
 s_tag *   frame_binding_new (s_frame *frame, const s_sym *name);
