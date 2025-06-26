@@ -320,7 +320,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       args_final = args;
     }
     while (clause) {
-      if (! (frame = frame_new(env->frame, fn->frame))) {
+      if (! (frame = frame_new_ref(env->frame))) {
         list_delete_all(args);
         env->silence_errors = silence_errors;
         list_delete_all(env->search_modules);
@@ -372,7 +372,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     }
   }
   else {
-    frame = frame_new(env->frame, fn->frame);
+    frame = frame_new(env->frame);
     env->frame = frame;
   }
   if (! (trace = list_new(env->stacktrace))) {

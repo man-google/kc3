@@ -471,7 +471,6 @@ struct file_stat {
 
 struct frame {
   s_binding *bindings;
-  s_frame *fn_frame;
   s_frame *next;
   s_mutex mutex;
   sw ref_count;

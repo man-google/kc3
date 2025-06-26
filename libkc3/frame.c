@@ -115,8 +115,6 @@ s_frame * frame_clean (s_frame *frame)
   assert(frame);
   next = frame->next;
   binding_delete_all(frame->bindings);
-  if (frame->fn_frame)
-    frame_delete(frame->fn_frame);
   return next;
 }
 
@@ -152,12 +150,33 @@ s_frame * frame_delete (s_frame *frame)
 
 void frame_delete_all (s_frame *frame)
 {
+  s_env *env;
   s_frame *next = NULL;
-  while (frame) {
-    next = frame->next;
-    frame_clean(frame);
-    free(frame);
-    frame = next;
+  env = env_global();
+  if (! env->cleaning) {
+    while (frame) {
+#if HAVE_PTHREAD
+      mutex_lock(&frame->mutex);
+#endif
+      next = frame->next;
+      if (frame->ref_count <= 0) {
+        err_puts("frame_delete: invalid reference count");
+        assert(! "frame_delete: invalid reference count");
+        abort();
+      }
+      if (--frame->ref_count) {
+#if HAVE_PTHREAD
+        mutex_unlock(&frame->mutex);
+#endif
+        return;
+      }
+#if HAVE_PTHREAD
+      mutex_unlock(&frame->mutex);
+#endif
+      frame_clean(frame);
+      free(frame);
+      frame = next;
+    }
   }
 }
 
@@ -205,15 +224,6 @@ s_tag * frame_get (s_frame *frame, const s_sym *sym)
       return result;
     f = f->next;
   }
-  f = frame;
-  while (f) {
-    if (f->fn_frame) {
-      result = frame_get(f->fn_frame, sym);
-      if (result)
-        return result;
-    }
-    f = f->next;
-  }
   return NULL;
 }
 
@@ -229,24 +239,14 @@ s_tag * frame_get_w (s_frame *frame, const s_sym *sym)
       return result;
     f = f->next;
   }
-  f = frame;
-  while (f) {
-    if (f->fn_frame) {
-      result = frame_get_w(f->fn_frame, sym);
-      if (result)
-        return result;
-    }
-    f = f->next;
-  }
   return NULL;
 }
 
-s_frame * frame_init (s_frame *frame, s_frame *next, s_frame *fn_frame)
+s_frame * frame_init (s_frame *frame, s_frame *next)
 {
   s_frame tmp = {0};
   assert(frame);
   tmp.next = next;
-  tmp.fn_frame = frame_new_ref(fn_frame);
 #if HAVE_PTHREAD
   mutex_init(&tmp.mutex);
 #endif
@@ -255,13 +255,13 @@ s_frame * frame_init (s_frame *frame, s_frame *next, s_frame *fn_frame)
   return frame;
 }
 
-s_frame * frame_new (s_frame *next, s_frame *fn_frame)
+s_frame * frame_new (s_frame *next)
 {
   s_frame *frame;
   frame = alloc(sizeof(s_frame));
   if (! frame)
     return NULL;
-  if (! frame_init(frame, next, fn_frame)) {
+  if (! frame_init(frame, next)) {
     free(frame);
     return NULL;
   }
@@ -277,8 +277,7 @@ s_frame * frame_new_copy (const s_frame *src)
   f = &frame;
   s = src;
   while (s) {
-    *f = frame_new(NULL, frame_new_copy(s->fn_frame));
-    frame_delete((*f)->fn_frame); // decrement ref_count
+    *f = frame_new(NULL);
     if (s->bindings &&
         ! ((*f)->bindings = binding_new_copy(s->bindings)))
       goto clean;

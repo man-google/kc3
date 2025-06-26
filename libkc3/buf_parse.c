@@ -3776,7 +3776,7 @@ sw buf_parse_struct (s_buf *buf, s_struct *dest)
   if (! struct_init_from_lists(&tmp, module, keys, values)) {
     err_write_1("buf_parse_struct: struct_init_from_lists ");
     err_inspect_sym(&module);
-    err_puts(".");    
+    err_puts(".");
     r = -2;
     goto clean;
   }

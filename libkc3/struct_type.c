@@ -32,8 +32,8 @@ void struct_type_clean (s_struct_type *st)
     err_write_1("struct_type_clean: ");
     err_inspect_struct_type(st);
     err_write_1("\n");
-    err_stacktrace();
-    abort();
+    //err_stacktrace();
+    //abort();
   }
   map_clean(&st->map);
   free(st->offset);

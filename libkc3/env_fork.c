@@ -61,7 +61,7 @@ s_env * env_fork_init (s_env *env, s_env *src)
   tmp.pass_by_copy = src->pass_by_copy;
   tmp.path = src->path;
   tmp.quote_level = src->quote_level;
-  if (! (tmp.read_time_frame = frame_new(NULL, NULL)))
+  if (! (tmp.read_time_frame = frame_new(NULL)))
     return NULL;
   tmp.search_modules = src->search_modules_default;
   tmp.search_modules_default = src->search_modules_default;
