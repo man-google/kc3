@@ -50,6 +50,7 @@
 #include "list.h"
 #include "map.h"
 #include "pstruct.h"
+#include "pstruct_type.h"
 #include "s32.h"
 #include "serialize.h"
 #include "str.h"
@@ -755,10 +756,14 @@ uw * kc3_offsetof (const s_sym * const *module,
   uw i = 0;
   s_struct_type *st;
   if (! struct_type_find(*module, &st) ||
-      ! st ||
-      ! struct_type_find_key_index(st, *key, &i))
+      ! st)
     return NULL;
+  if (! struct_type_find_key_index(st, *key, &i)) {
+    pstruct_type_clean(&st);
+    return NULL;
+  }
   *dest = st->offset[i];
+  pstruct_type_clean(&st);
   return dest;
 }
 

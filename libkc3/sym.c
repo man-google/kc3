@@ -18,6 +18,7 @@
 #include "compare.h"
 #include "ident.h"
 #include "list.h"
+#include "pstruct_type.h"
 #include "str.h"
 #include "struct_type.h"
 #include "sym.h"
@@ -751,6 +752,7 @@ bool * sym_must_clean (const s_sym *sym, bool *must_clean)
     return NULL;
   if (st) {
     *must_clean = st->must_clean;
+    pstruct_type_clean(&st);
     return must_clean;
   }
   err_write_1("sym_must_clean: unknown type: ");
@@ -1324,6 +1326,7 @@ uw * sym_type_size (const s_sym * const *type, uw *dest)
     return NULL;
   if (st) {
     *dest = st->size;
+    pstruct_type_clean(&st);
     return dest;
   }
   err_write_1("sym_type_size: unknown type: ");

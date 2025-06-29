@@ -46,6 +46,7 @@
 #include "data.h"
 #include "env.h"
 #include "env_eval.h"
+#include "env_frame_capture.h"
 #include "error.h"
 #include "error_handler.h"
 #include "fact.h"
@@ -285,7 +286,6 @@ void env_clean (s_env *env)
     env = g_kc3_env_default;
   if (! env)
     return;
-  env->cleaning = true;
   if (false) {
     uw size;
     sym_list_size(&size);
@@ -389,6 +389,7 @@ const s_sym * env_def_clean (s_env *env, const s_sym *module,
     return NULL;
   }
   st->clean = (f_clean) clean->data.pcallable->data.cfn.ptr.f;
+  pstruct_type_clean(&st);
   return module;
 }
 
@@ -1045,6 +1046,39 @@ s_tag * env_facts_with_transaction (s_env *env, s_tag *facts_arg,
   return dest;
 }
 
+s_frame * env_frame_new_capture (s_env *env, s_fn *fn)
+{
+  s_fn_clause *clause;
+  s_frame *frame;
+  uw i;
+  s_list *pattern;
+  assert(env);
+  assert(fn);
+  frame = frame_new(NULL);
+  clause = fn->clauses;
+  while (clause) {
+    pattern = clause->pattern;
+    while (pattern) {
+      if (! env_frame_capture_tag(env, frame, &pattern->tag)) {
+        frame_delete(frame);
+        return NULL;
+      }
+      pattern = list_next(pattern);
+    }
+    i = 0;
+    while (i < clause->algo.count) {
+      if (! env_frame_capture_tag(env, frame,
+                                  clause->algo.tag + i)) {
+        frame_delete(frame);
+        return NULL;
+      }
+      i++;
+    }
+    clause = clause->next_clause;
+  }
+  return frame;
+}
+  
 s_tag * env_frames_get (s_env *env, const s_sym *name)
 {
   s_tag *tag;
@@ -2101,8 +2135,7 @@ s_struct_type ** env_struct_type_find (s_env *env,
   tag_init_sym(&tag_module, module);
   tag_init_sym(&tag_struct_type, &g_sym_struct_type);
   tag_init_var(&tag_var, &g_sym_StructType);
-  if (! env->cleaning &&
-      ! env_module_maybe_reload(env, module)) {
+  if (! env_module_maybe_reload(env, module)) {
     err_write_1("env_struct_type_find: env_module_maybe_reload(");
     err_inspect_sym(&module);
     err_puts(")");

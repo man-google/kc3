@@ -87,6 +87,7 @@ s_tag * struct_access_sym (s_struct *s, const s_sym *key, s_tag *dest)
         return NULL;
       if (st) {
         tag_init_pstruct_with_type(&tmp, st);
+        pstruct_type_clean(&st);
         if (! struct_allocate(tmp.data.pstruct))
           return NULL;
       }
@@ -280,12 +281,7 @@ s_struct * struct_init (s_struct *s, const s_sym *module)
       err_write_1("\n");
       return NULL;
     }
-    if (! pstruct_type_init_copy(&tmp.pstruct_type, &st)) {
-      err_write_1("struct_init: pstruct_type_init_copy: ");
-      err_inspect_sym(&module);
-      err_write_1("\n");
-      return NULL;
-    }
+    tmp.pstruct_type = st;
   }
   tmp.ref_count = 1;
 #if HAVE_PTHREAD
@@ -420,8 +416,7 @@ s_struct * struct_init_with_data (s_struct *s, const s_sym *module,
     assert(! "struct_init_with_data: struct_type not found");
     return NULL;
   }
-  if (! pstruct_type_init_copy(&tmp.pstruct_type, &st))
-    return NULL;
+  tmp.pstruct_type = st;
   tmp.data = data;
   tmp.free_data = free_data;
   tmp.ref_count = 1;

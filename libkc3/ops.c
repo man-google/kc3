@@ -20,6 +20,7 @@
 #include "list.h"
 #include "op.h"
 #include "ops.h"
+#include "pstruct_type.h"
 #include "struct_type.h"
 #include "sym.h"
 #include "tag.h"
@@ -118,8 +119,11 @@ s_tag * ops_get (s_ops *ops, const s_sym *sym, u8 arity, s_tag *dest)
   op_struct.ref_count = 1;
   op.sym = sym;
   op.arity = arity;
-  if (! ht_get(&ops->ht, &op_tag, dest))
+  if (! ht_get(&ops->ht, &op_tag, dest)) {
+    pstruct_type_clean(&op_struct.pstruct_type);
     return NULL;
+  }
+  pstruct_type_clean(&op_struct.pstruct_type);
   return dest;
 }
 

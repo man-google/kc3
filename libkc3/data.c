@@ -14,6 +14,7 @@
 
 sw data_buf_inspect (s_buf *buf, const s_sym *type, const void *data)
 {
+  sw r;
   s_struct s = {0};
   s_struct_type *st;
   if (type == &g_sym_Array ||
@@ -96,7 +97,9 @@ sw data_buf_inspect (s_buf *buf, const s_sym *type, const void *data)
   if (st) {
     s.pstruct_type = st;
     s.data = (void *) data;
-    return buf_inspect_struct(buf, &s);
+    r = buf_inspect_struct(buf, &s);
+    pstruct_type_clean(&st);
+    return r;
   }
   err_write_1("data_buf_inspect: unknown type: ");
   err_inspect_sym(&type);
@@ -108,6 +111,7 @@ sw data_buf_inspect (s_buf *buf, const s_sym *type, const void *data)
 sw data_buf_inspect_size (s_pretty *pretty, const s_sym *type,
                           const void *data)
 {
+  sw r;
   s_struct s = {0};
   s_struct_type *st;
   if (type == &g_sym_Array ||
@@ -190,7 +194,9 @@ sw data_buf_inspect_size (s_pretty *pretty, const s_sym *type,
   if (st) {
     s.pstruct_type = st;
     s.data = (void *) data;
-    return buf_inspect_struct_size(pretty, &s);
+    r = buf_inspect_struct_size(pretty, &s);
+    pstruct_type_clean(&st);
+    return r;
   }
   err_write_1("data_buf_inspect_size: unknown type: ");
   err_inspect_sym(&type);
@@ -338,6 +344,7 @@ bool data_clean (const s_sym *type, void *data)
     s.pstruct_type = st;
     s.data = data;
     struct_clean(&s);
+    pstruct_type_clean(&st);
     return true;
   }
   err_write_1("data_clean: unknown type: ");
@@ -347,8 +354,9 @@ bool data_clean (const s_sym *type, void *data)
   return false;
 }
 
-bool data_compare (const s_sym *type, const void *a, const void *b)
+s8 data_compare (const s_sym *type, const void *a, const void *b)
 {
+  s8 r;
   s_struct sa = {0};
   s_struct sb = {0};
   s_struct_type *st;
@@ -377,7 +385,7 @@ bool data_compare (const s_sym *type, const void *a, const void *b)
   if (type == &g_sym_List)
     return compare_list(a, b);
   if (type == &g_sym_Ptag)
-    return compare_ptag(a, b);
+    return compare_ptag((const p_tag) a, (const p_tag) b);
   if (type == &g_sym_Ptr)
     return compare_ptr(a, b);
   if (type == &g_sym_PtrFree)
@@ -429,7 +437,9 @@ bool data_compare (const s_sym *type, const void *a, const void *b)
       sa.data = (void *) a;
       sb.pstruct_type = st;
       sb.data = (void *) b;
-      return compare_struct(&sa, &sb);
+      r = compare_struct(&sa, &sb);
+      pstruct_type_clean(&st);
+      return r;
     }
   }
   if (type == &g_sym_Array ||
@@ -444,6 +454,7 @@ bool data_compare (const s_sym *type, const void *a, const void *b)
 
 bool data_hash_update (const s_sym *type, t_hash *hash, const void *data)
 {
+  bool r;
   s_struct s = {0};
   s_struct_type *st;
   if (type == &g_sym_Array ||
@@ -524,7 +535,9 @@ bool data_hash_update (const s_sym *type, t_hash *hash, const void *data)
   if (st) {
     s.pstruct_type = st;
     s.data = (void *) data;
-    return hash_update_struct(hash, &s);
+    r = hash_update_struct(hash, &s);
+    pstruct_type_clean(&st);
+    return r;
   }
   err_write_1("data_hash_update: unknown type: ");
   err_inspect_sym(&type);
@@ -536,6 +549,7 @@ bool data_hash_update (const s_sym *type, t_hash *hash, const void *data)
 void * data_init_cast (void *data, const s_sym * const *type,
                        s_tag *tag)
 {
+  void *r;
   p_struct s = NULL;
   s_struct_type *st;
   const s_sym *t;
@@ -615,8 +629,11 @@ void * data_init_cast (void *data, const s_sym * const *type,
     return data;
   if (! struct_type_find(t, &st))
     return NULL;
-  if (st)
-    return pstruct_init_cast(&s, type, tag);
+  if (st) {
+    r = pstruct_init_cast(&s, type, tag);
+    pstruct_type_clean(&st);
+    return r;
+  }
   err_write_1("data_init_cast: unknown type: ");
   err_inspect_sym(type);
   err_write_1("\n");
@@ -626,6 +643,7 @@ void * data_init_cast (void *data, const s_sym * const *type,
 
 void * data_init_copy (const s_sym *type, void *data, void *src)
 {
+  void *r;
   s_struct_type *st;
   if (type == &g_sym_Array ||
       sym_is_array_type(type))
@@ -706,8 +724,11 @@ void * data_init_copy (const s_sym *type, void *data, void *src)
     return data;
   if (! struct_type_find(type, &st))
     return NULL;
-  if (st)
-    return struct_type_copy_data(st, data, src);
+  if (st) {
+    r = struct_type_copy_data(st, data, src);
+    pstruct_type_clean(&st);
+    return r;
+  }
   err_write_1("data_init_copy: unknown type: ");
   err_inspect_sym(&type);
   err_write_1("\n");

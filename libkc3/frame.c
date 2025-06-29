@@ -120,10 +120,8 @@ s_frame * frame_clean (s_frame *frame)
 
 s_frame * frame_delete (s_frame *frame)
 {
-  s_env *env;
   s_frame *next = NULL;
-  env = env_global();
-  if (frame && ! env->cleaning) {
+  if (frame) {
 #if HAVE_PTHREAD
     mutex_lock(&frame->mutex);
 #endif
@@ -150,43 +148,35 @@ s_frame * frame_delete (s_frame *frame)
 
 void frame_delete_all (s_frame *frame)
 {
-  s_env *env;
   s_frame *next = NULL;
-  env = env_global();
-  if (! env->cleaning) {
-    while (frame) {
+  while (frame) {
 #if HAVE_PTHREAD
-      mutex_lock(&frame->mutex);
+    mutex_lock(&frame->mutex);
 #endif
-      next = frame->next;
-      if (frame->ref_count <= 0) {
-        err_puts("frame_delete: invalid reference count");
-        assert(! "frame_delete: invalid reference count");
-        abort();
-      }
-      if (--frame->ref_count) {
-#if HAVE_PTHREAD
-        mutex_unlock(&frame->mutex);
-#endif
-        return;
-      }
+    next = frame->next;
+    if (frame->ref_count <= 0) {
+      err_puts("frame_delete: invalid reference count");
+      assert(! "frame_delete: invalid reference count");
+      abort();
+    }
+    if (--frame->ref_count) {
 #if HAVE_PTHREAD
       mutex_unlock(&frame->mutex);
 #endif
-      frame_clean(frame);
-      free(frame);
-      frame = next;
+      return;
     }
+#if HAVE_PTHREAD
+    mutex_unlock(&frame->mutex);
+#endif
+    frame_clean(frame);
+    free(frame);
+    frame = next;
   }
 }
 
 void frame_delete_rec (s_frame *frame)
 {
-  s_env *env;
   s_frame *next = NULL;
-  env = env_global();
-  if (env->cleaning)
-    return;
   while (frame) {
 #if HAVE_PTHREAD
     mutex_lock(&frame->mutex);
