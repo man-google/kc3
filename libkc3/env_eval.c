@@ -320,13 +320,14 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       args_final = args;
     }
     while (clause) {
-      if (! (frame = frame_new_ref(env->frame))) {
+      if (! (frame = frame_new_copy(fn->frame))) {
         list_delete_all(args);
         env->silence_errors = silence_errors;
         list_delete_all(env->search_modules);
         env->search_modules = search_modules;
         return false;
       }
+      frame->next = env->frame;
       env->frame = frame;
       env->silence_errors = true;
       env_unwind_protect_push(env, &jump.unwind_pattern);
@@ -334,6 +335,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
         env_unwind_protect_pop(env, &jump.unwind_pattern);
         env->silence_errors = silence_errors;
         env->frame = env_frame;
+        frame_delete(frame);
         list_delete_all(args);
         longjmp(*jump.unwind_pattern.jmp, 1);
       }
@@ -347,6 +349,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
       env->silence_errors = silence_errors;
       assert(env->frame == frame);
       env->frame = env_frame;
+      frame_delete(frame);
       clause = clause->next_clause;
     }
     if (! clause) {
@@ -412,6 +415,7 @@ bool env_eval_call_fn_args (s_env *env, const s_fn *fn,
     env->search_modules = search_modules;
     assert(env->frame == frame);
     env->frame = env_frame;
+    frame_delete(frame);
     longjmp(*jump.unwind_do.jmp, 1);
   }
   if (setjmp(jump.block.buf)) {

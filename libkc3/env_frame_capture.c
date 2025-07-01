@@ -111,16 +111,14 @@ s_frame * env_frame_capture_ident (s_env *env, s_frame *frame,
                                    s_ident *ident)
 {
   s_tag *value;
-  s_tag tag_void = {0};
   assert(env);
   assert(frame);
   assert(ident);
   if (ident->module)
     return frame;
   value = env_frames_get(env, ident->sym);
-  if (! value)
-    value = &tag_void;
-  if (! frame_replace(frame, ident->sym, value))
+  if (value &&
+      ! frame_replace(frame, ident->sym, value))
     return NULL;
   return frame;
 }
@@ -131,7 +129,6 @@ s_frame * env_frame_capture_list (s_env *env, s_frame *frame,
   s_list *l = list;
   assert(env);
   assert(frame);
-  assert(list);
   while (l) {
     if (! env_frame_capture_tag(env, frame, &l->tag))
       return NULL;
