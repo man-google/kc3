@@ -89,7 +89,6 @@ HEADERS = \
 	"cow.h" \
 	"crypt.h" \
 	"data.h" \
-	"deserialize.h" \
 	"do_block.h" \
 	"env_eval.h" \
 	"env_fork.h" \
@@ -278,7 +277,6 @@ SOURCES = \
 	"crypt.c" \
 	"crypt_sha512.c" \
 	"data.c" \
-	"deserialize.c" \
 	"do_block.c" \
 	"env.c" \
 	"env_eval.c" \
@@ -478,7 +476,6 @@ LO_SOURCES = \
 	"crypt.c" \
 	"crypt_sha512.c" \
 	"data.c" \
-	"deserialize.c" \
 	"do_block.c" \
 	"env.c" \
 	"env_eval.c" \
