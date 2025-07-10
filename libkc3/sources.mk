@@ -314,6 +314,7 @@ SOURCES = \
 	"list_init.c" \
 	"log.c" \
 	"map.c" \
+	"marshall.c" \
 	"module.c" \
 	"mutex.c" \
 	"op.c" \
@@ -336,7 +337,6 @@ SOURCES = \
 	"s64.c" \
 	"s8.c" \
 	"sequence.c" \
-	"serialize.c" \
 	"set_cursor__fact.c" \
 	"set_cursor__tag.c" \
 	"set__fact.c" \
@@ -610,6 +610,7 @@ LO_SOURCES = \
 	"list_init.c" \
 	"log.c" \
 	"map.c" \
+	"marshall.c" \
 	"module.c" \
 	"mutex.c" \
 	"op.c" \
@@ -632,7 +633,6 @@ LO_SOURCES = \
 	"s64.c" \
 	"s8.c" \
 	"sequence.c" \
-	"serialize.c" \
 	"set_cursor__fact.c" \
 	"set_cursor__tag.c" \
 	"set__fact.c" \
