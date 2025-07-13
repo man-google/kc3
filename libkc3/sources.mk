@@ -129,6 +129,7 @@ HEADERS = \
 	"log.h" \
 	"map.h" \
 	"marshall.h" \
+	"marshall_read.h" \
 	"module.h" \
 	"mutex.h" \
 	"op.h" \
@@ -151,7 +152,6 @@ HEADERS = \
 	"s64.h" \
 	"s8.h" \
 	"sequence.h" \
-	"serialize.h" \
 	"set_cursor__fact.h" \
 	"set_cursor__tag.h" \
 	"set__fact.h" \
@@ -315,6 +315,7 @@ SOURCES = \
 	"log.c" \
 	"map.c" \
 	"marshall.c" \
+	"marshall_read.c" \
 	"module.c" \
 	"mutex.c" \
 	"op.c" \
@@ -611,6 +612,7 @@ LO_SOURCES = \
 	"log.c" \
 	"map.c" \
 	"marshall.c" \
+	"marshall_read.c" \
 	"module.c" \
 	"mutex.c" \
 	"op.c" \

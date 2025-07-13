@@ -221,6 +221,8 @@ typedef struct list                    s_list_map;
 typedef struct log                     s_log;
 typedef struct map                     s_map;
 typedef struct marshall                s_marshall;
+typedef struct marshall_header         s_marshall_header;
+typedef struct marshall_read           s_marshall_read;
 typedef struct mutex                   s_mutex;
 typedef struct op                      s_op;
 typedef struct ops                     s_ops;
@@ -331,6 +333,12 @@ struct map {
   uw count;
   s_tag *key; /* sorted (see tag_compare) */
   s_tag *value;
+};
+
+struct marshall_header {
+  u64 le_heap_count;
+  u64 le_heap_size;
+  u64 le_buf_size;
 };
 
 struct mutex {
@@ -561,6 +569,14 @@ struct ratio {
 };
 
 struct marshall {
+  s_buf heap;
+  sw    heap_count;
+  sw    heap_pos;
+  s_buf buf;
+  sw    buf_pos;
+};
+
+struct marshall_read {
   s_buf heap;
   s_buf buf;
 };
