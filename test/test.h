@@ -16,6 +16,7 @@
 #include <float.h>
 #include <stdio.h>
 #include "../libkc3/buf.h"
+#include "../libkc3/io.h"
 
 #define TEST_COLOR_KO "\033[0;91m"
 #define TEST_COLOR_OK "\033[0;92m"
@@ -164,6 +165,34 @@
               # a, # b, # expected, # expected, TEST_STR_COMPARE_tmp,  \
               TEST_COLOR_RESET);                                       \
       return 1;                                                        \
+    }                                                                  \
+  } while (0)
+
+#define TEST_STR_EQ(test, expected)                                    \
+  do {                                                                 \
+    s_str test_str = (test);                                           \
+    s_str expected_str = (expected);                                   \
+    sw i = 0;                                                          \
+    if (test_str.size != expected_str.size)                            \
+      goto ko;                                                         \
+    while (i < test_str.size) {                                        \
+      if (test_str.ptr.pchar[i] != expected_str.ptr.pchar[i]) {        \
+      ko:                                                              \
+        test_ko();                                                     \
+        fprintf(stderr, "\n%sTEST_STR_EQ failed in %s:%d %s\n"         \
+                "Expected ",                                           \
+                TEST_COLOR_KO,                                         \
+                __FILE__, __LINE__, __func__);                         \
+        fflush(stderr);                                                \
+        err_inspect_str(&expected_str);                                \
+        fprintf(stderr, "\n"                                           \
+                "got      ");                                          \
+        err_inspect_str(&test_str);                                    \
+        fprintf(stderr, "%s\n",                                        \
+                TEST_COLOR_RESET);                                     \
+        return 1;                                                      \
+      }                                                                \
+      i++;                                                             \
     }                                                                  \
   } while (0)
 
