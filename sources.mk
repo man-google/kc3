@@ -1703,7 +1703,6 @@ KC3_OTHER_SOURCES = \
 	"sources.sh" \
 
 KC3_EXTERNAL_SOURCES = \
-	"libtommath/.config_ASAN.c" \
 	"libtommath/LICENSE" \
 	"libtommath/README.md" \
 	"libtommath/bn_cutoffs.c" \
