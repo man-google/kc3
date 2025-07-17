@@ -257,9 +257,12 @@ typedef union tag_data      u_tag_data;
 /* typedefs */
 typedef s_callable *   p_callable;
 typedef u32            character;
+typedef s_cow *        p_cow;
+typedef s_complex *    p_complex;
 typedef s_tag **       p_facts_spec;
 typedef s_tag *        t_facts_spec[];
 typedef SHA1_CTX       t_hash;
+typedef s_list *       p_list;
 typedef s_struct *     p_struct;
 typedef s_struct_type *p_struct_type;
 typedef const s_sym *  p_sym;
