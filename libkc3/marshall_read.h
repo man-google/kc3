@@ -39,6 +39,12 @@ s_marshall_read * marshall_read_new_buf (s_buf *buf);
 s_marshall_read * marshall_read_new_file (const char *path);
 s_marshall_read * marshall_read_new_str (s_str *src);
 
+
+/* Special prototypes */
+s_marshall_read *marshall_read_heap_pointer(s_marshall_read *mr,
+                                           bool heap, void *dest,
+                                           sw *heap_offset);
+
 /* Operators. */
 PROTO_MARSHALL_READ(array,        s_array      );
 PROTO_MARSHALL_READ(bool,         bool         );
@@ -52,7 +58,7 @@ PROTO_MARSHALL_READ(f128,         f128         );
 PROTO_MARSHALL_READ(f32,          f32          );
 PROTO_MARSHALL_READ(f64,          f64          );
 PROTO_MARSHALL_READ(fact,         s_fact       );
-// PROTO_MARSHALL_READ(list,         s_list       );
+// PROTO_MARSHALL_READ(list,         s_list    );
 PROTO_MARSHALL_READ(ident,        s_ident      );
 PROTO_MARSHALL_READ(integer,      s_integer    );
 PROTO_MARSHALL_READ(map,          s_map        );

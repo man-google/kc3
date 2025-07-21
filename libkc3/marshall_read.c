@@ -13,6 +13,7 @@
 
 #include "tag.h"
 #include "types.h"
+#include "list.h"
 #include "assert.h"
 #include "marshall.h"
 #include "marshall_read.h"
@@ -49,8 +50,44 @@ DEF_MARSHALL_READ(f128, f128)
 DEF_MARSHALL_READ(f32, f32)
 DEF_MARSHALL_READ(f64, f64)
 
+
+
+s_marshall_read *marshall_read_heap_pointer(s_marshall_read *mr,
+                                           bool heap, void *dest,
+                                           sw *heap_offset)
+{
+  void *tmp = 0;
+  s_buf *buf = {0};
+  sw r = 0;
+  assert(mr);
+  assert(dest);
+  assert(heap_offset);
+  buf = heap ? &mr->heap : &mr->buf;
+  if (! marshall_read_sw(mr, heap, heap_offset))
+    return NULL;
+  *heap_offset += r * (heap_offset != NULL);
+  return mr;
+}
+
 s_marshall_read * marshall_read_plist (s_marshall_read *mr, bool heap,
                                        p_list *dest)
+{
+  p_list tmp = {0};
+  sw heap_pos = 0;
+  assert(mr);
+  assert(dest);
+  if (! marshall_read_heap_pointer(mr, heap, &tmp, &heap_pos))
+    return NULL;
+  if (! marshall_read_tag(mr, heap, &tmp->next)) {
+    list_delete_all(tmp);
+    return NULL;
+  }
+  *dest = tmp;
+  return mr;
+}
+
+s_marshall_read * marshall_read_list (s_marshall_read *mr, bool heap,
+                                       s_list *dest)
 {
   s_list tmp = {0};
   assert(mr);
@@ -61,7 +98,7 @@ s_marshall_read * marshall_read_plist (s_marshall_read *mr, bool heap,
     tag_clean(&tmp.tag);
     return NULL;
   }
-  **dest = tmp;
+  *dest = tmp;
   return mr;
 }
 
@@ -197,6 +234,7 @@ DEF_MARSHALL_READ(uw, uw)
         return NULL;                                                  \
     }
 
+
 DEF_MARSHALL_READ(array, s_array)
 DEF_MARSHALL_READ(call, s_call)
 DEF_MARSHALL_READ(callable, s_callable)
@@ -216,7 +254,6 @@ DEF_MARSHALL_READ(tuple, s_tuple)
 DEF_MARSHALL_READ(time, s_time)
 DEF_MARSHALL_READ(unquote, s_unquote)
 DEF_MARSHALL_READ(var, s_var)
-
 DEF_MARSHALL_READ(pcallable, p_callable )
 DEF_MARSHALL_READ(pcomplex, p_complex )
 DEF_MARSHALL_READ(pcow, p_cow )
