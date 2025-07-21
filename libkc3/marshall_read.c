@@ -53,19 +53,14 @@ DEF_MARSHALL_READ(f64, f64)
 
 
 s_marshall_read *marshall_read_heap_pointer(s_marshall_read *mr,
-                                           bool heap, void *dest,
-                                           sw *heap_offset)
+                                           bool heap, sw *heap_offset)
 {
-  void *tmp = 0;
-  s_buf *buf = {0};
   sw r = 0;
   assert(mr);
-  assert(dest);
   assert(heap_offset);
-  buf = heap ? &mr->heap : &mr->buf;
-  if (! marshall_read_sw(mr, heap, heap_offset))
+  if (! heap_offset || marshall_read_sw(mr, heap, &r) == NULL)
     return NULL;
-  *heap_offset += r * (heap_offset != NULL);
+  *heap_offset += r;
   return mr;
 }
 
@@ -76,7 +71,7 @@ s_marshall_read * marshall_read_plist (s_marshall_read *mr, bool heap,
   sw heap_pos = 0;
   assert(mr);
   assert(dest);
-  if (! marshall_read_heap_pointer(mr, heap, &tmp, &heap_pos))
+  if (! marshall_read_heap_pointer(mr, heap, &heap_pos))
     return NULL;
   if (! marshall_read_tag(mr, heap, &tmp->next)) {
     list_delete_all(tmp);

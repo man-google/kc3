@@ -42,8 +42,7 @@ s_marshall_read * marshall_read_new_str (s_str *src);
 
 /* Special prototypes */
 s_marshall_read *marshall_read_heap_pointer(s_marshall_read *mr,
-                                           bool heap, void *dest,
-                                           sw *heap_offset);
+                                           bool heap, sw *heap_offset);
 
 /* Operators. */
 PROTO_MARSHALL_READ(array,        s_array      );
